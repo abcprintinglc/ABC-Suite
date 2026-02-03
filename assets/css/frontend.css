@@ -1,0 +1,20 @@
+.abc-estimator-pro {
+    margin: 20px 0;
+}
+
+.abc-estimator-header {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.abc-estimator-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.abc-estimator-table th,
+.abc-estimator-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
