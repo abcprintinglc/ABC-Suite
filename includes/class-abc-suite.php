@@ -7,6 +7,7 @@ class ABC_Suite {
     }
 
     private function includes(): void {
+        require_once ABC_SUITE_PATH . 'includes/b2b-designer-helpers.php';
         require_once ABC_SUITE_PATH . 'includes/class-cpt-abc-estimate.php';
         require_once ABC_SUITE_PATH . 'includes/class-meta-box-job-jacket.php';
         require_once ABC_SUITE_PATH . 'includes/class-history.php';

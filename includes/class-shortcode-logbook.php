@@ -6,39 +6,37 @@ class ABC_Shortcode_Logbook {
     }
 
     public function render_shortcode(): string {
+        if (!current_user_can('edit_posts')) {
+            return '<p>Please log in to access the Estimator Log Book.</p>';
+        }
+
         wp_enqueue_style('abc-suite-frontend');
         wp_enqueue_script('abc-suite-frontend');
-
-        $posts = get_posts([
-            'post_type' => ABC_CPT_ABC_Estimate::POST_TYPE,
-            'numberposts' => 20,
-        ]);
-
         ob_start();
         ?>
-        <div class="abc-estimator-pro">
+        <div class="abc-estimator-frontend">
             <div class="abc-estimator-header">
-                <input type="search" class="abc-search" placeholder="Search estimates">
-                <a class="button" href="<?php echo esc_url(admin_url('post-new.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE)); ?>">New Estimate</a>
+                <div class="abc-estimator-controls">
+                    <input type="text" id="abc-frontend-search" placeholder="Search invoice #, client, job name, keywords...">
+                    <span class="spinner" id="abc-spinner" style="display:none;">Loading...</span>
+                </div>
+                <div>
+                    <a class="button button-primary" href="<?php echo esc_url(admin_url('post-new.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE)); ?>" target="_blank" rel="noopener">+ New Estimate</a>
+                </div>
             </div>
-            <table class="abc-estimator-table">
+            <table class="abc-logbook-table widefat striped">
                 <thead>
                     <tr>
-                        <th>Invoice</th>
-                        <th>Status</th>
+                        <th>Invoice #</th>
+                        <th>Job / Client</th>
+                        <th>Stage</th>
                         <th>Due Date</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <?php foreach ($posts as $post) : ?>
-                        <tr>
-                            <td><?php echo esc_html(get_post_meta($post->ID, 'abc_invoice_number', true)); ?></td>
-                            <td><?php echo esc_html(get_post_meta($post->ID, 'abc_status', true)); ?></td>
-                            <td><?php echo esc_html(get_post_meta($post->ID, 'abc_due_date', true)); ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
+                <tbody id="abc-log-results"></tbody>
             </table>
+            <p id="abc-no-results" style="display:none; color:#666; margin-top:20px;">No estimates found.</p>
         </div>
         <?php
         return ob_get_clean();
