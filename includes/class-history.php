@@ -6,10 +6,9 @@ class ABC_History {
         'abc_order_date',
         'abc_approval_date',
         'abc_due_date',
-        'abc_rush',
+        'abc_is_rush',
         'abc_status',
-        'abc_workflow_status',
-        'abc_line_items_json',
+        'abc_estimate_data',
     ];
 
     public function register(): void {

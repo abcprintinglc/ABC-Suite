@@ -18,7 +18,6 @@
     <div class="meta">
         <span><strong>Invoice:</strong> <?php echo esc_html($data['meta']['invoice']); ?></span>
         <span><strong>Status:</strong> <?php echo esc_html($data['meta']['status']); ?></span>
-        <span><strong>Workflow:</strong> <?php echo esc_html($data['meta']['workflow_status']); ?></span>
     </div>
     <div class="meta">
         <span><strong>Order Date:</strong> <?php echo esc_html($data['meta']['order_date']); ?></span>

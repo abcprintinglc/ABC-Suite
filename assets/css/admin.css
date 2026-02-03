@@ -1,8 +1,45 @@
-.abc-logbook-search {
-    margin: 20px 0;
+.abc-logbook-panel {
+    margin-top: 20px;
+    background: #fff;
+    padding: 20px;
+    border: 1px solid #ccd0d4;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
 }
 
-.abc-logbook-table mark {
-    background: #ffe399;
-    padding: 0 2px;
+.abc-logbook-toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+.abc-logbook-input {
+    width: 100%;
+    max-width: 520px;
+    padding: 8px;
+    font-size: 15px;
+}
+
+.abc-logbook-table th,
+.abc-logbook-table td {
+    vertical-align: middle;
+}
+
+.abc-row-urgent {
+    background-color: #ffebeb !important;
+    color: #b32d2e;
+    font-weight: 600;
+}
+
+.abc-row-warning {
+    background-color: #fff7e6 !important;
+}
+
+.abc-rush {
+    color: #b32d2e;
+    font-weight: bold;
+}
+
+.abc-actions {
+    white-space: nowrap;
 }

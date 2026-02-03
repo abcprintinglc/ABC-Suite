@@ -1,20 +1,79 @@
-.abc-estimator-pro {
-    margin: 20px 0;
+.abc-estimator-frontend {
+    background: #fff;
+    padding: 20px;
+    border: 1px solid #ccd0d4;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
 }
 
 .abc-estimator-header {
     display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.abc-estimator-controls {
+    display: flex;
     gap: 10px;
-    margin-bottom: 10px;
+    align-items: center;
+    flex-grow: 1;
+    max-width: 520px;
 }
 
-.abc-estimator-table {
+.abc-estimator-controls input {
     width: 100%;
-    border-collapse: collapse;
+    padding: 10px;
+    font-size: 16px;
 }
 
-.abc-estimator-table th,
-.abc-estimator-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
+.abc-logbook-table th,
+.abc-logbook-table td {
+    border-bottom: 1px solid #ddd;
+    padding: 10px;
+}
+
+.abc-row-urgent {
+    background-color: #ffebeb;
+    color: #b32d2e;
+    font-weight: bold;
+}
+
+.abc-row-warning {
+    background-color: #fff7e6;
+}
+
+.abc-pill {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.status-production {
+    background: #e6fffa;
+    color: #2c7a7b;
+}
+
+.status-estimate {
+    background: #edf2f7;
+    color: #4a5568;
+}
+
+.status-pending {
+    background: #ebf8ff;
+    color: #2b6cb0;
+}
+
+.status-completed {
+    background: #f0fff4;
+    color: #2f855a;
+}
+
+.abc-rush {
+    color: #b32d2e;
+    font-weight: bold;
 }

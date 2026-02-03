@@ -31,10 +31,9 @@ class ABC_Print_View {
                 'order_date' => get_post_meta($post_id, 'abc_order_date', true),
                 'approval_date' => get_post_meta($post_id, 'abc_approval_date', true),
                 'due_date' => get_post_meta($post_id, 'abc_due_date', true),
-                'rush' => get_post_meta($post_id, 'abc_rush', true),
+                'rush' => get_post_meta($post_id, 'abc_is_rush', true),
                 'status' => get_post_meta($post_id, 'abc_status', true),
-                'workflow_status' => get_post_meta($post_id, 'abc_workflow_status', true),
-                'line_items_json' => get_post_meta($post_id, 'abc_line_items_json', true),
+                'line_items_json' => get_post_meta($post_id, 'abc_estimate_data', true) ?: get_post_meta($post_id, 'abc_line_items_json', true),
             ],
         ];
 
