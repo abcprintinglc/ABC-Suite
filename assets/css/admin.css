@@ -43,3 +43,60 @@
 .abc-actions {
     white-space: nowrap;
 }
+
+.abc-product-library-panel {
+    margin-top: 20px;
+    padding: 16px;
+    border: 1px solid #ccd0d4;
+    background: #f9fafb;
+}
+
+.abc-product-library-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.abc-product-library-form {
+    padding: 12px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 12px;
+}
+
+.abc-product-library-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.abc-product-library-row label {
+    min-width: 140px;
+}
+
+.abc-product-library-actions {
+    margin-top: 12px;
+}
+
+.abc-matrix-grid {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    margin-top: 20px;
+}
+
+.abc-matrix-card {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    padding: 16px;
+}
+
+.abc-matrix-filter {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}

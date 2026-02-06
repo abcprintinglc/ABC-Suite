@@ -95,6 +95,49 @@ class ABC_Meta_Box_Job_Jacket {
             <div id="abc-react-estimate-builder-mount">
                 <p><em>(Line item grid renders here)</em></p>
             </div>
+
+            <div class="abc-product-library-panel">
+                <div class="abc-product-library-header">
+                    <h3>Product Library</h3>
+                    <button type="button" class="button" id="abc-toggle-library">Add from Product Library</button>
+                </div>
+                <div id="abc-product-library-form" class="abc-product-library-form" style="display:none;">
+                    <div class="abc-product-library-row">
+                        <label for="abc_template_select"><strong>Template</strong></label>
+                        <select id="abc_template_select"></select>
+                    </div>
+                    <div id="abc-template-options"></div>
+                    <div class="abc-product-library-row">
+                        <label for="abc_template_qty"><strong>Qty</strong></label>
+                        <input type="number" id="abc_template_qty" min="1" value="1">
+                    </div>
+                    <div class="abc-product-library-row">
+                        <label for="abc_template_vendor"><strong>Vendor</strong></label>
+                        <input type="text" id="abc_template_vendor" placeholder="Vendor">
+                    </div>
+                    <div class="abc-product-library-row">
+                        <label for="abc_template_cost"><strong>Cost</strong></label>
+                        <input type="number" id="abc_template_cost" step="0.01">
+                        <span id="abc-template-cost-status" class="description"></span>
+                    </div>
+                    <div class="abc-product-library-row">
+                        <label for="abc_template_markup_type"><strong>Markup</strong></label>
+                        <select id="abc_template_markup_type">
+                            <option value="percent">Percent</option>
+                            <option value="multiplier">Multiplier</option>
+                        </select>
+                        <input type="number" id="abc_template_markup_value" step="0.01">
+                    </div>
+                    <div class="abc-product-library-row">
+                        <label for="abc_template_sell_price"><strong>Sell Price</strong></label>
+                        <input type="number" id="abc_template_sell_price" step="0.01" readonly>
+                    </div>
+                    <div class="abc-product-library-actions">
+                        <button type="button" class="button button-primary" id="abc-add-line-item">Add to Estimate</button>
+                    </div>
+                </div>
+                <div id="abc-template-line-items"></div>
+            </div>
         </div>
         <?php
     }

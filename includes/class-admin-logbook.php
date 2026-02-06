@@ -17,6 +17,23 @@ class ABC_Admin_Logbook {
 
         add_submenu_page(
             'edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE,
+            'Product Library',
+            'Product Library',
+            'edit_posts',
+            'edit.php?post_type=' . ABC_CPT_ABC_Product_Template::POST_TYPE
+        );
+
+        add_submenu_page(
+            'edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE,
+            'Price Matrix',
+            'Price Matrix',
+            'manage_options',
+            'abc-price-matrix',
+            [new ABC_Price_Matrix_Admin(), 'render_page']
+        );
+
+        add_submenu_page(
+            'edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE,
             'Import / Data Tools',
             'Import / Data Tools',
             'manage_options',
