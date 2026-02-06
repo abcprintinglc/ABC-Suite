@@ -393,6 +393,22 @@
 
       $btn.prop('disabled', true).text('Creating...');
 
+    function refreshSellPrice() {
+      var sell = calcSellPrice($cost.val(), $markupType.val(), $markupValue.val());
+      if (isNaN(sell)) sell = 0;
+      $sellPrice.val(sell.toFixed(2));
+    }
+
+    function lookupCost() {
+      var templateId = $select.val();
+      var vendor = $vendor.val();
+      var qty = parseInt($qty.val(), 10);
+      var options = gatherOptions($optionsContainer);
+      var turnaround = options.Turnaround || options.turnaround || '';
+
+      if (!templateId || !vendor || !qty) return;
+
+      $costStatus.text('Looking up cost...');
       $.post(ABCSuiteLogbook.ajaxUrl, {
         action: 'abc_create_square_invoice',
         nonce: ABCSuiteLogbook.nonce,
@@ -414,6 +430,24 @@
       }).always(function () {
         $btn.prop('disabled', false).text('Create Square Invoice');
       });
+    }
+
+    $select.on('change', function () {
+      var $selected = $select.find('option:selected');
+      var schemaText = $selected.data('schema') || '{}';
+      var vendorDefault = $selected.data('vendor') || '';
+      var markupType = $selected.data('markup-type') || 'percent';
+      var markupValue = $selected.data('markup-value') || 0;
+      var wcProductId = $selected.data('wc-product-id') || '';
+      var label = $selected.text() || '';
+      buildOptions($optionsContainer, parseSchema(schemaText));
+      $vendor.val(vendorDefault);
+      $wcProduct.val(wcProductId);
+      $customProduct.val(label || '');
+      $markupType.val(markupType);
+      $markupValue.val(markupValue);
+      refreshSellPrice();
+      lookupCost();
     });
   }
 
