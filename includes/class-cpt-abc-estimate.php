@@ -86,6 +86,120 @@ class ABC_CPT_ABC_Estimate {
             },
         ]);
 
+        $text_fields = [
+            'abc_client_name',
+            'abc_job_description',
+            'abc_promised_date',
+            'abc_ordered_date',
+            'abc_last_ticket',
+            'abc_send_proof_to',
+            'abc_completed_by',
+            'abc_printer_tech',
+            'abc_designer',
+        ];
+
+        $textarea_fields = [
+            'abc_job_name',
+            'abc_stock_notes',
+            'abc_press_work',
+            'abc_print_notes',
+            'abc_numbering_notes',
+            'abc_finish_notes',
+            'abc_delivery_notes',
+            'abc_contacted_on',
+        ];
+
+        foreach ($text_fields as $key) {
+            register_post_meta(self::POST_TYPE, $key, [
+                'type' => 'string',
+                'single' => true,
+                'show_in_rest' => false,
+                'sanitize_callback' => static function ($value): string {
+                    return sanitize_text_field((string) $value);
+                },
+                'auth_callback' => static function (): bool {
+                    return current_user_can('edit_posts');
+                },
+            ]);
+        }
+
+        foreach ($textarea_fields as $key) {
+            register_post_meta(self::POST_TYPE, $key, [
+                'type' => 'string',
+                'single' => true,
+                'show_in_rest' => false,
+                'sanitize_callback' => static function ($value): string {
+                    return sanitize_textarea_field((string) $value);
+                },
+                'auth_callback' => static function (): bool {
+                    return current_user_can('edit_posts');
+                },
+            ]);
+        }
+
+        $checkbox_fields = [
+            'abc_is_new_job',
+            'abc_is_repeat_job',
+            'abc_has_changes',
+            'abc_is_print_ready',
+            'abc_has_copies',
+            'abc_notes_see_back',
+            'abc_send_proof',
+            'abc_press_two_sided',
+            'abc_press_color',
+            'abc_press_bw',
+            'abc_finish_perf',
+            'abc_finish_foil',
+            'abc_finish_wraparound',
+            'abc_finish_fold',
+            'abc_finish_score',
+            'abc_finish_pad',
+            'abc_finish_ncr',
+            'abc_finish_spiral',
+            'abc_finish_numbering_required',
+            'abc_finish_numbering_black',
+            'abc_delivery_deliver',
+            'abc_delivery_ship',
+            'abc_delivery_pickup',
+            'abc_contact_email',
+            'abc_contact_phone',
+            'abc_contact_voicemail',
+            'abc_contact_po',
+        ];
+
+        foreach ($checkbox_fields as $key) {
+            register_post_meta(self::POST_TYPE, $key, [
+                'type' => 'string',
+                'single' => true,
+                'show_in_rest' => false,
+                'sanitize_callback' => static function ($value): string {
+                    return $value === '1' ? '1' : '0';
+                },
+                'auth_callback' => static function (): bool {
+                    return current_user_can('edit_posts');
+                },
+            ]);
+        }
+
+        $percent_fields = [
+            'abc_printer_pct',
+            'abc_designer_pct',
+        ];
+
+        foreach ($percent_fields as $key) {
+            register_post_meta(self::POST_TYPE, $key, [
+                'type' => 'number',
+                'single' => true,
+                'show_in_rest' => false,
+                'sanitize_callback' => static function ($value): string {
+                    return is_numeric($value) ? (string) (float) $value : '0';
+                },
+                'auth_callback' => static function (): bool {
+                    return current_user_can('edit_posts');
+                },
+            ]);
+        }
+
         register_post_meta(self::POST_TYPE, 'abc_history_log', [
             'type' => 'array',
             'single' => true,
