@@ -205,24 +205,47 @@ class ABC_CSV_Tools {
             wp_die('Insufficient permissions.');
         }
 
-        if (!isset($_POST[self::NONCE_NAME]) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST[self::NONCE_NAME])), self::NONCE_ACTION)) {
+        $nonce = '';
+        if (isset($_POST[self::NONCE_NAME])) {
+            $nonce = sanitize_text_field(wp_unslash($_POST[self::NONCE_NAME]));
+        } elseif (isset($_GET[self::NONCE_NAME])) {
+            $nonce = sanitize_text_field(wp_unslash($_GET[self::NONCE_NAME]));
+        }
+
+        if ($nonce === '' || !wp_verify_nonce($nonce, self::NONCE_ACTION)) {
             wp_die('Invalid nonce.');
         }
 
+        $batch_size = 200;
         $results = new WP_Query([
             'post_type' => ABC_CPT_ABC_Estimate::POST_TYPE,
-            'posts_per_page' => -1,
+            'posts_per_page' => $batch_size,
             'meta_key' => 'abc_is_imported',
             'meta_value' => '1',
             'fields' => 'ids',
             'no_found_rows' => true,
         ]);
 
+        $deleted_total = (int) get_transient('abc_csv_delete_count_' . get_current_user_id());
+        $deleted_total += count($results->posts);
+
         foreach ($results->posts as $post_id) {
             wp_delete_post($post_id, true);
         }
 
-        wp_safe_redirect(admin_url('edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE . '&page=abc-data-tools&deleted=' . count($results->posts)));
+        if (count($results->posts) === $batch_size) {
+            set_transient('abc_csv_delete_count_' . get_current_user_id(), $deleted_total, 10 * MINUTE_IN_SECONDS);
+            $continue_url = add_query_arg([
+                'action' => 'abc_bulk_delete',
+                self::NONCE_NAME => wp_create_nonce(self::NONCE_ACTION),
+                'continue' => 1,
+            ], admin_url('admin-post.php'));
+            wp_safe_redirect($continue_url);
+            exit;
+        }
+
+        delete_transient('abc_csv_delete_count_' . get_current_user_id());
+        wp_safe_redirect(admin_url('edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE . '&page=abc-data-tools&deleted=' . $deleted_total));
         exit;
     }
 
