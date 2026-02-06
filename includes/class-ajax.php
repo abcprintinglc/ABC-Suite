@@ -11,6 +11,7 @@ class ABC_Ajax {
         add_action('wp_ajax_abc_save_template', [$this, 'save_template']);
         add_action('wp_ajax_abc_update_template', [$this, 'update_template']);
         add_action('wp_ajax_abc_matrix_upsert', [$this, 'matrix_upsert']);
+        add_action('wp_ajax_abc_create_square_invoice', [$this, 'create_square_invoice']);
     }
 
     public function search_estimates(): void {
@@ -342,6 +343,139 @@ class ABC_Ajax {
             return 'warning';
         }
         return 'normal';
+    }
+
+    public function create_square_invoice(): void {
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
+        if (!wp_verify_nonce($nonce, 'abc_log_book_nonce')) {
+            wp_send_json_error(['message' => 'Invalid nonce.'], 403);
+        }
+
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => 'Unauthorized.'], 403);
+        }
+
+        $estimate_id = isset($_POST['estimate_id']) ? absint($_POST['estimate_id']) : 0;
+        if (!$estimate_id) {
+            wp_send_json_error(['message' => 'Missing estimate id.'], 400);
+        }
+
+        $token = (string) get_option('abc_square_access_token', '');
+        $location_id = (string) get_option('abc_square_location_id', '');
+        $currency = (string) get_option('abc_square_currency', 'USD');
+
+        if ($token === '' || $location_id === '') {
+            wp_send_json_error(['message' => 'Square settings missing.'], 400);
+        }
+
+        $line_items_json = get_post_meta($estimate_id, 'abc_estimate_data', true) ?: get_post_meta($estimate_id, 'abc_line_items_json', true);
+        $line_items = json_decode((string) $line_items_json, true);
+        if (!is_array($line_items)) {
+            $line_items = [];
+        }
+
+        if (empty($line_items)) {
+            wp_send_json_error(['message' => 'No line items found.'], 400);
+        }
+
+        $customer_id = '';
+        $client_email = (string) get_post_meta($estimate_id, 'abc_client_email', true);
+        $client_name = (string) get_post_meta($estimate_id, 'abc_client_name', true);
+        if ($client_email !== '') {
+            $customer_response = $this->square_request('POST', '/v2/customers', $token, array_filter([
+                'idempotency_key' => wp_generate_uuid4(),
+                'email_address' => $client_email,
+                'given_name' => $client_name !== '' ? $client_name : null,
+            ]));
+            if (!is_wp_error($customer_response) && isset($customer_response['customer']['id'])) {
+                $customer_id = $customer_response['customer']['id'];
+            }
+        }
+
+        $order_items = [];
+        foreach ($line_items as $item) {
+            $qty = (float) ($item['qty'] ?? 1);
+            $qty = $qty > 0 ? $qty : 1;
+            $sell = (float) ($item['sell_price'] ?? 0);
+            $name = (string) ($item['custom_product_name'] ?? $item['product_label'] ?? 'Estimate Item');
+            $order_items[] = [
+                'name' => $name,
+                'quantity' => (string) $qty,
+                'base_price_money' => [
+                    'amount' => (int) round($sell * 100),
+                    'currency' => $currency,
+                ],
+            ];
+        }
+
+        $order_response = $this->square_request('POST', '/v2/orders', $token, [
+            'idempotency_key' => wp_generate_uuid4(),
+            'order' => array_filter([
+                'location_id' => $location_id,
+                'line_items' => $order_items,
+                'customer_id' => $customer_id ?: null,
+            ]),
+        ]);
+
+        if (is_wp_error($order_response) || empty($order_response['order']['id'])) {
+            wp_send_json_error(['message' => 'Unable to create Square order.'], 500);
+        }
+
+        $order_id = $order_response['order']['id'];
+        $invoice_payload = [
+            'idempotency_key' => wp_generate_uuid4(),
+            'invoice' => array_filter([
+                'location_id' => $location_id,
+                'order_id' => $order_id,
+                'primary_recipient' => $customer_id ? ['customer_id' => $customer_id] : null,
+                'payment_requests' => [
+                    [
+                        'request_type' => 'BALANCE',
+                        'due_date' => gmdate('Y-m-d'),
+                    ],
+                ],
+            ]),
+        ];
+
+        $invoice_response = $this->square_request('POST', '/v2/invoices', $token, $invoice_payload);
+        if (is_wp_error($invoice_response) || empty($invoice_response['invoice']['id'])) {
+            wp_send_json_error(['message' => 'Unable to create Square invoice.'], 500);
+        }
+
+        $invoice_id = $invoice_response['invoice']['id'];
+        $status = $invoice_response['invoice']['status'] ?? '';
+        update_post_meta($estimate_id, 'abc_square_invoice_id', $invoice_id);
+        update_post_meta($estimate_id, 'abc_square_invoice_status', $status);
+
+        wp_send_json_success([
+            'invoice_id' => $invoice_id,
+            'status' => $status,
+        ]);
+    }
+
+    private function square_request(string $method, string $path, string $token, array $body) {
+        $response = wp_remote_request('https://connect.squareup.com' . $path, [
+            'method' => $method,
+            'headers' => [
+                'Authorization' => 'Bearer ' . $token,
+                'Content-Type' => 'application/json',
+                'Square-Version' => '2024-04-17',
+            ],
+            'body' => wp_json_encode($body),
+            'timeout' => 20,
+        ]);
+
+        if (is_wp_error($response)) {
+            return $response;
+        }
+
+        $code = wp_remote_retrieve_response_code($response);
+        $data = json_decode((string) wp_remote_retrieve_body($response), true);
+        if ($code >= 400) {
+            return new WP_Error('square_error', 'Square API error', $data);
+        }
+
+        return $data;
     }
 
     private function due_date_for_display(string $due_date_str): string {

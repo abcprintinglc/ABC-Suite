@@ -177,6 +177,12 @@
     margin-bottom: 4px;
 }
 
+.abc-jacket-assignments input[type="number"],
+.abc-jacket-assignments input[type="text"],
+.abc-jacket-assignments select {
+    width: 100%;
+}
+
 .abc-matrix-grid {
     display: grid;
     gap: 20px;
@@ -196,4 +202,13 @@
     align-items: center;
     flex-wrap: wrap;
     margin-bottom: 12px;
+}
+
+.abc-option-list {
+    margin: 0;
+    padding-left: 16px;
+}
+
+.abc-option-list li {
+    margin-bottom: 2px;
 }

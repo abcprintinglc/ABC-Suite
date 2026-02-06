@@ -23,6 +23,10 @@ class ABC_Suite {
         require_once ABC_SUITE_PATH . 'includes/class-price-matrix.php';
         require_once ABC_SUITE_PATH . 'includes/class-price-matrix-admin.php';
         require_once ABC_SUITE_PATH . 'includes/class-payout-report.php';
+        require_once ABC_SUITE_PATH . 'includes/class-estimator-settings.php';
+        require_once ABC_SUITE_PATH . 'includes/class-estimate-learning-log.php';
+        require_once ABC_SUITE_PATH . 'includes/class-design-request.php';
+        require_once ABC_SUITE_PATH . 'includes/class-b2b-designer-frontend.php';
     }
 
     private function init_modules(): void {
@@ -38,5 +42,7 @@ class ABC_Suite {
         (new ABC_Shortcode_Logbook())->register();
         (new ABC_Duplicate_Action())->register();
         (new ABC_Assets())->register();
+        (new ABC_Design_Request())->register();
+        (new ABC_B2B_Designer_Frontend())->register();
     }
 }

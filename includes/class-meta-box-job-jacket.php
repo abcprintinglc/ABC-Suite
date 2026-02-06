@@ -42,6 +42,7 @@ class ABC_Meta_Box_Job_Jacket {
             $status = 'estimate';
         }
         $client_name = (string) get_post_meta($post->ID, 'abc_client_name', true);
+        $client_email = (string) get_post_meta($post->ID, 'abc_client_email', true);
         $job_description = (string) get_post_meta($post->ID, 'abc_job_description', true);
         $promised_date = (string) get_post_meta($post->ID, 'abc_promised_date', true);
         $ordered_date = (string) get_post_meta($post->ID, 'abc_ordered_date', true);
@@ -85,14 +86,32 @@ class ABC_Meta_Box_Job_Jacket {
         $completed_by = (string) get_post_meta($post->ID, 'abc_completed_by', true);
         $printer_tech = (string) get_post_meta($post->ID, 'abc_printer_tech', true);
         $designer = (string) get_post_meta($post->ID, 'abc_designer', true);
+        $sales_rep = (string) get_post_meta($post->ID, 'abc_sales_rep', true);
+        $design_request_id = (string) get_post_meta($post->ID, 'abc_design_request_id', true);
         $printer_pct = (string) get_post_meta($post->ID, 'abc_printer_pct', true);
         $designer_pct = (string) get_post_meta($post->ID, 'abc_designer_pct', true);
+        $commission_pct = (string) get_post_meta($post->ID, 'abc_commission_pct', true);
+        $commission_amount = (string) get_post_meta($post->ID, 'abc_commission_amount', true);
+        $estimate_total = (string) get_post_meta($post->ID, 'abc_estimate_total', true);
+        $square_invoice_id = (string) get_post_meta($post->ID, 'abc_square_invoice_id', true);
+        $square_invoice_status = (string) get_post_meta($post->ID, 'abc_square_invoice_status', true);
+        $estimate_paid = (string) get_post_meta($post->ID, 'abc_estimate_paid', true);
         if ($printer_pct === '') {
             $printer_pct = '5';
         }
         if ($designer_pct === '') {
             $designer_pct = '5';
         }
+        if ($commission_pct === '') {
+            $commission_pct = '0';
+        }
+        $design_requests = get_posts([
+            'post_type' => ABC_Design_Request::POST_TYPE,
+            'posts_per_page' => 200,
+            'post_status' => 'any',
+            'orderby' => 'date',
+            'order' => 'DESC',
+        ]);
         $estimate_json = (string) get_post_meta($post->ID, 'abc_estimate_data', true);
         if ($estimate_json === '') {
             $estimate_json = (string) get_post_meta($post->ID, 'abc_line_items_json', true);
@@ -134,7 +153,10 @@ class ABC_Meta_Box_Job_Jacket {
 
             <div class="abc-jacket-row">
                 <label>NAME</label>
-                <input type="text" name="abc_job_description" value="<?php echo esc_attr($job_description); ?>" class="regular-text">
+                <div class="abc-jacket-stack">
+                    <input type="text" name="abc_job_description" value="<?php echo esc_attr($job_description); ?>" class="regular-text">
+                    <input type="email" name="abc_client_email" value="<?php echo esc_attr($client_email); ?>" placeholder="Client Email">
+                </div>
             </div>
 
             <div class="abc-jacket-checks">
@@ -294,6 +316,58 @@ class ABC_Meta_Box_Job_Jacket {
                     <label>Designer %</label>
                     <input type="number" step="0.01" name="abc_designer_pct" value="<?php echo esc_attr($designer_pct); ?>">
                 </div>
+                <div>
+                    <label>Sales Rep</label>
+                    <select name="abc_sales_rep">
+                        <option value="">Select user</option>
+                        <?php foreach ($users as $user) : ?>
+                            <option value="<?php echo esc_attr($user->ID); ?>" <?php selected($sales_rep, (string) $user->ID); ?>><?php echo esc_html($user->display_name); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div>
+                    <label>Commission %</label>
+                    <input type="number" step="0.01" name="abc_commission_pct" id="abc_commission_pct" value="<?php echo esc_attr($commission_pct); ?>">
+                </div>
+                <div>
+                    <label>Commission $</label>
+                    <input type="number" step="0.01" name="abc_commission_amount" id="abc_commission_amount" value="<?php echo esc_attr($commission_amount); ?>" readonly>
+                </div>
+                <div>
+                    <label>Design Request</label>
+                    <select name="abc_design_request_id">
+                        <option value="">Select design</option>
+                        <?php foreach ($design_requests as $design) : ?>
+                            <option value="<?php echo esc_attr($design->ID); ?>" <?php selected($design_request_id, (string) $design->ID); ?>><?php echo esc_html($design->post_title); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <?php if ($design_request_id) : ?>
+                        <p class="description"><a href="<?php echo esc_url(get_edit_post_link((int) $design_request_id, 'raw')); ?>" target="_blank" rel="noopener">View design request</a></p>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <div class="abc-jacket-row abc-jacket-assignments">
+                <div>
+                    <label>Estimate Total</label>
+                    <input type="number" step="0.01" name="abc_estimate_total" id="abc_estimate_total" value="<?php echo esc_attr($estimate_total); ?>" readonly>
+                </div>
+                <div>
+                    <label>Paid?</label>
+                    <input type="checkbox" name="abc_estimate_paid" value="1" <?php checked($estimate_paid, '1'); ?>>
+                </div>
+                <div>
+                    <label>Square Invoice ID</label>
+                    <input type="text" name="abc_square_invoice_id" id="abc_square_invoice_id" value="<?php echo esc_attr($square_invoice_id); ?>" readonly>
+                </div>
+                <div>
+                    <label>Square Status</label>
+                    <input type="text" name="abc_square_invoice_status" id="abc_square_invoice_status" value="<?php echo esc_attr($square_invoice_status); ?>" readonly>
+                </div>
+                <div>
+                    <label>&nbsp;</label>
+                    <button type="button" class="button" id="abc-create-square-invoice" data-estimate-id="<?php echo esc_attr((string) $post->ID); ?>">Create Square Invoice</button>
+                </div>
             </div>
 
             <input type="hidden" name="abc_estimate_data" id="abc_estimate_data" value="<?php echo esc_attr($estimate_json); ?>">
@@ -411,6 +485,7 @@ class ABC_Meta_Box_Job_Jacket {
             'abc_status',
             'abc_estimate_data',
             'abc_client_name',
+            'abc_client_email',
             'abc_job_description',
             'abc_promised_date',
             'abc_ordered_date',
@@ -427,8 +502,13 @@ class ABC_Meta_Box_Job_Jacket {
             'abc_completed_by',
             'abc_printer_tech',
             'abc_designer',
+            'abc_sales_rep',
+            'abc_design_request_id',
             'abc_printer_pct',
             'abc_designer_pct',
+            'abc_commission_pct',
+            'abc_commission_amount',
+            'abc_estimate_total',
             'abc_is_new_job',
             'abc_is_repeat_job',
             'abc_has_changes',
@@ -456,6 +536,9 @@ class ABC_Meta_Box_Job_Jacket {
             'abc_contact_phone',
             'abc_contact_voicemail',
             'abc_contact_po',
+            'abc_estimate_paid',
+            'abc_square_invoice_id',
+            'abc_square_invoice_status',
         ];
 
         $cpt = new ABC_CPT_ABC_Estimate();
@@ -516,9 +599,10 @@ class ABC_Meta_Box_Job_Jacket {
                 'abc_contact_phone',
                 'abc_contact_voicemail',
                 'abc_contact_po',
+                'abc_estimate_paid',
             ], true)) {
                 $new = $new === '1' ? '1' : '0';
-            } elseif (in_array($field, ['abc_printer_pct', 'abc_designer_pct'], true)) {
+            } elseif (in_array($field, ['abc_printer_pct', 'abc_designer_pct', 'abc_commission_pct', 'abc_commission_amount', 'abc_estimate_total'], true)) {
                 $new = is_numeric($new) ? (string) (float) $new : '0';
             } elseif (in_array($field, $textarea_fields, true)) {
                 $new = sanitize_textarea_field($new);

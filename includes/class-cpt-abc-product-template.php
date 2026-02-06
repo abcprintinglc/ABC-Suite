@@ -47,6 +47,7 @@ class ABC_CPT_ABC_Product_Template {
             'abc_template_option_schema' => 'string',
             'abc_template_schema_version' => 'string',
             'abc_template_wc_product_id' => 'string',
+            'abc_template_org_id' => 'string',
         ];
 
         foreach ($fields as $key => $type) {
@@ -87,6 +88,7 @@ class ABC_CPT_ABC_Product_Template {
         $option_schema = (string) get_post_meta($post->ID, 'abc_template_option_schema', true);
         $schema_version = (string) get_post_meta($post->ID, 'abc_template_schema_version', true);
         $wc_product_id = (string) get_post_meta($post->ID, 'abc_template_wc_product_id', true);
+        $org_id = (string) get_post_meta($post->ID, 'abc_template_org_id', true);
 
         if ($pricing_model === '') {
             $pricing_model = 'matrix';
@@ -162,6 +164,10 @@ class ABC_CPT_ABC_Product_Template {
                     <td><input type="text" name="abc_template_wc_product_id" id="abc_template_wc_product_id" value="<?php echo esc_attr($wc_product_id); ?>" class="small-text"></td>
                 </tr>
                 <tr>
+                    <th scope="row"><label for="abc_template_org_id">Organization ID</label></th>
+                    <td><input type="text" name="abc_template_org_id" id="abc_template_org_id" value="<?php echo esc_attr($org_id); ?>" class="small-text"></td>
+                </tr>
+                <tr>
                     <th scope="row"><label for="abc_template_option_schema">Option Schema (JSON)</label></th>
                     <td>
                         <textarea name="abc_template_option_schema" id="abc_template_option_schema" rows="10" class="large-text code"><?php echo esc_textarea($option_schema); ?></textarea>
@@ -204,6 +210,7 @@ class ABC_CPT_ABC_Product_Template {
             'abc_template_option_schema',
             'abc_template_schema_version',
             'abc_template_wc_product_id',
+            'abc_template_org_id',
         ];
 
         foreach ($fields as $field) {
@@ -221,6 +228,9 @@ class ABC_CPT_ABC_Product_Template {
             return is_numeric($value) ? (string) (float) $value : '0';
         }
         if ($key === 'abc_template_wc_product_id') {
+            return $value !== '' ? (string) absint($value) : '';
+        }
+        if ($key === 'abc_template_org_id') {
             return $value !== '' ? (string) absint($value) : '';
         }
         if ($key === 'abc_template_option_schema') {
