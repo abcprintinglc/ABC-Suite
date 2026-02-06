@@ -406,19 +406,6 @@
 
       $btn.prop('disabled', true).text('Creating...');
 
-    function refreshSellPrice() {
-      var sell = calcSellPrice($cost.val(), $markupType.val(), $markupValue.val());
-      if (isNaN(sell)) sell = 0;
-      $sellPrice.val(sell.toFixed(2));
-    }
-
-    function lookupCost() {
-      var templateId = $select.val();
-      var vendor = $vendor.val();
-      var qty = parseInt($qty.val(), 10);
-      var options = gatherOptions($optionsContainer);
-      var turnaround = options.Turnaround || options.turnaround || '';
-
       if (!templateId || !vendor || !qty) return;
 
       $costStatus.text('Looking up cost...');
