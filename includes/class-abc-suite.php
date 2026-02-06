@@ -23,6 +23,8 @@ class ABC_Suite {
         require_once ABC_SUITE_PATH . 'includes/class-price-matrix.php';
         require_once ABC_SUITE_PATH . 'includes/class-price-matrix-admin.php';
         require_once ABC_SUITE_PATH . 'includes/class-payout-report.php';
+        require_once ABC_SUITE_PATH . 'includes/class-estimator-settings.php';
+        require_once ABC_SUITE_PATH . 'includes/class-estimate-learning-log.php';
     }
 
     private function init_modules(): void {

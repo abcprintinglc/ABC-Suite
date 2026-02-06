@@ -177,6 +177,12 @@
     margin-bottom: 4px;
 }
 
+.abc-jacket-assignments input[type="number"],
+.abc-jacket-assignments input[type="text"],
+.abc-jacket-assignments select {
+    width: 100%;
+}
+
 .abc-matrix-grid {
     display: grid;
     gap: 20px;

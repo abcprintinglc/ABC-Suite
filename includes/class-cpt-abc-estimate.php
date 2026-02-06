@@ -88,6 +88,7 @@ class ABC_CPT_ABC_Estimate {
 
         $text_fields = [
             'abc_client_name',
+            'abc_client_email',
             'abc_job_description',
             'abc_promised_date',
             'abc_ordered_date',
@@ -96,6 +97,7 @@ class ABC_CPT_ABC_Estimate {
             'abc_completed_by',
             'abc_printer_tech',
             'abc_designer',
+            'abc_sales_rep',
         ];
 
         $textarea_fields = [
@@ -184,6 +186,7 @@ class ABC_CPT_ABC_Estimate {
         $percent_fields = [
             'abc_printer_pct',
             'abc_designer_pct',
+            'abc_commission_pct',
         ];
 
         foreach ($percent_fields as $key) {
@@ -199,6 +202,56 @@ class ABC_CPT_ABC_Estimate {
                 },
             ]);
         }
+
+        $number_fields = [
+            'abc_commission_amount',
+            'abc_estimate_total',
+        ];
+
+        foreach ($number_fields as $key) {
+            register_post_meta(self::POST_TYPE, $key, [
+                'type' => 'number',
+                'single' => true,
+                'show_in_rest' => false,
+                'sanitize_callback' => static function ($value): string {
+                    return is_numeric($value) ? (string) (float) $value : '0';
+                },
+                'auth_callback' => static function (): bool {
+                    return current_user_can('edit_posts');
+                },
+            ]);
+        }
+
+        $status_fields = [
+            'abc_square_invoice_id',
+            'abc_square_invoice_status',
+        ];
+
+        foreach ($status_fields as $key) {
+            register_post_meta(self::POST_TYPE, $key, [
+                'type' => 'string',
+                'single' => true,
+                'show_in_rest' => false,
+                'sanitize_callback' => static function ($value): string {
+                    return sanitize_text_field((string) $value);
+                },
+                'auth_callback' => static function (): bool {
+                    return current_user_can('edit_posts');
+                },
+            ]);
+        }
+
+        register_post_meta(self::POST_TYPE, 'abc_estimate_paid', [
+            'type' => 'string',
+            'single' => true,
+            'show_in_rest' => false,
+            'sanitize_callback' => static function ($value): string {
+                return $value === '1' ? '1' : '0';
+            },
+            'auth_callback' => static function (): bool {
+                return current_user_can('edit_posts');
+            },
+        ]);
 
         register_post_meta(self::POST_TYPE, 'abc_history_log', [
             'type' => 'array',

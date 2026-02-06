@@ -43,6 +43,24 @@ class ABC_Admin_Logbook {
 
         add_submenu_page(
             'edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE,
+            'Estimator Settings',
+            'Estimator Settings',
+            'manage_options',
+            'abc-estimator-settings',
+            [new ABC_Estimator_Settings(), 'render_page']
+        );
+
+        add_submenu_page(
+            'edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE,
+            'Estimate Learning Log',
+            'Estimate Learning Log',
+            'manage_options',
+            'abc-estimate-learning-log',
+            [new ABC_Estimate_Learning_Log(), 'render_page']
+        );
+
+        add_submenu_page(
+            'edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE,
             'Import / Data Tools',
             'Import / Data Tools',
             'manage_options',
