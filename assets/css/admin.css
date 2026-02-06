@@ -80,6 +80,103 @@
     margin-top: 12px;
 }
 
+.abc-jacket-sheet {
+    background: #fff;
+    padding: 16px;
+    border: 1px solid #ccd0d4;
+}
+
+.abc-jacket-header {
+    display: grid;
+    grid-template-columns: 140px 120px 1fr 1fr 1fr;
+    gap: 12px;
+    align-items: end;
+    margin-bottom: 12px;
+}
+
+.abc-jacket-invoice input {
+    font-size: 18px;
+    font-weight: 700;
+    width: 100%;
+}
+
+.abc-jacket-year {
+    text-align: center;
+}
+
+.abc-jacket-year-display {
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 1;
+    padding: 6px 0;
+    border-bottom: 2px solid #cc0000;
+    color: #cc0000;
+}
+
+.abc-jacket-hot label {
+    color: #cc0000;
+    font-weight: 700;
+}
+
+.abc-jacket-hot input {
+    width: 100%;
+}
+
+.abc-jacket-date label {
+    color: #cc0000;
+    font-weight: 700;
+}
+
+.abc-jacket-row {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 12px;
+    align-items: start;
+    margin-bottom: 10px;
+}
+
+.abc-jacket-row textarea,
+.abc-jacket-row input[type="text"] {
+    width: 100%;
+}
+
+.abc-jacket-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.abc-jacket-stack .abc-jacket-checks {
+    margin-bottom: 0;
+}
+
+.abc-jacket-checks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    margin-bottom: 12px;
+    align-items: center;
+}
+
+.abc-jacket-checks input[type="text"] {
+    min-width: 180px;
+}
+
+.abc-jacket-meta,
+.abc-jacket-assignments {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.abc-jacket-meta label,
+.abc-jacket-assignments label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
 .abc-matrix-grid {
     display: grid;
     gap: 20px;

@@ -41,6 +41,58 @@ class ABC_Meta_Box_Job_Jacket {
         if ($status === '') {
             $status = 'estimate';
         }
+        $client_name = (string) get_post_meta($post->ID, 'abc_client_name', true);
+        $job_description = (string) get_post_meta($post->ID, 'abc_job_description', true);
+        $promised_date = (string) get_post_meta($post->ID, 'abc_promised_date', true);
+        $ordered_date = (string) get_post_meta($post->ID, 'abc_ordered_date', true);
+        $last_ticket = (string) get_post_meta($post->ID, 'abc_last_ticket', true);
+        $send_proof_to = (string) get_post_meta($post->ID, 'abc_send_proof_to', true);
+        $job_name = (string) get_post_meta($post->ID, 'abc_job_name', true);
+        $stock_notes = (string) get_post_meta($post->ID, 'abc_stock_notes', true);
+        $press_work = (string) get_post_meta($post->ID, 'abc_press_work', true);
+        $print_notes = (string) get_post_meta($post->ID, 'abc_print_notes', true);
+        $numbering_notes = (string) get_post_meta($post->ID, 'abc_numbering_notes', true);
+        $finish_notes = (string) get_post_meta($post->ID, 'abc_finish_notes', true);
+        $delivery_notes = (string) get_post_meta($post->ID, 'abc_delivery_notes', true);
+        $contacted_on = (string) get_post_meta($post->ID, 'abc_contacted_on', true);
+        $is_new_job = (string) get_post_meta($post->ID, 'abc_is_new_job', true);
+        $is_repeat_job = (string) get_post_meta($post->ID, 'abc_is_repeat_job', true);
+        $has_changes = (string) get_post_meta($post->ID, 'abc_has_changes', true);
+        $is_print_ready = (string) get_post_meta($post->ID, 'abc_is_print_ready', true);
+        $has_copies = (string) get_post_meta($post->ID, 'abc_has_copies', true);
+        $notes_see_back = (string) get_post_meta($post->ID, 'abc_notes_see_back', true);
+        $send_proof = (string) get_post_meta($post->ID, 'abc_send_proof', true);
+        $press_two_sided = (string) get_post_meta($post->ID, 'abc_press_two_sided', true);
+        $press_color = (string) get_post_meta($post->ID, 'abc_press_color', true);
+        $press_bw = (string) get_post_meta($post->ID, 'abc_press_bw', true);
+        $finish_perf = (string) get_post_meta($post->ID, 'abc_finish_perf', true);
+        $finish_foil = (string) get_post_meta($post->ID, 'abc_finish_foil', true);
+        $finish_wraparound = (string) get_post_meta($post->ID, 'abc_finish_wraparound', true);
+        $finish_fold = (string) get_post_meta($post->ID, 'abc_finish_fold', true);
+        $finish_score = (string) get_post_meta($post->ID, 'abc_finish_score', true);
+        $finish_pad = (string) get_post_meta($post->ID, 'abc_finish_pad', true);
+        $finish_ncr = (string) get_post_meta($post->ID, 'abc_finish_ncr', true);
+        $finish_spiral = (string) get_post_meta($post->ID, 'abc_finish_spiral', true);
+        $finish_numbering_required = (string) get_post_meta($post->ID, 'abc_finish_numbering_required', true);
+        $finish_numbering_black = (string) get_post_meta($post->ID, 'abc_finish_numbering_black', true);
+        $delivery_deliver = (string) get_post_meta($post->ID, 'abc_delivery_deliver', true);
+        $delivery_ship = (string) get_post_meta($post->ID, 'abc_delivery_ship', true);
+        $delivery_pickup = (string) get_post_meta($post->ID, 'abc_delivery_pickup', true);
+        $contact_email = (string) get_post_meta($post->ID, 'abc_contact_email', true);
+        $contact_phone = (string) get_post_meta($post->ID, 'abc_contact_phone', true);
+        $contact_voicemail = (string) get_post_meta($post->ID, 'abc_contact_voicemail', true);
+        $contact_po = (string) get_post_meta($post->ID, 'abc_contact_po', true);
+        $completed_by = (string) get_post_meta($post->ID, 'abc_completed_by', true);
+        $printer_tech = (string) get_post_meta($post->ID, 'abc_printer_tech', true);
+        $designer = (string) get_post_meta($post->ID, 'abc_designer', true);
+        $printer_pct = (string) get_post_meta($post->ID, 'abc_printer_pct', true);
+        $designer_pct = (string) get_post_meta($post->ID, 'abc_designer_pct', true);
+        if ($printer_pct === '') {
+            $printer_pct = '5';
+        }
+        if ($designer_pct === '') {
+            $designer_pct = '5';
+        }
         $estimate_json = (string) get_post_meta($post->ID, 'abc_estimate_data', true);
         if ($estimate_json === '') {
             $estimate_json = (string) get_post_meta($post->ID, 'abc_line_items_json', true);
@@ -56,38 +108,193 @@ class ABC_Meta_Box_Job_Jacket {
             'completed' => 'Completed',
         ];
         ?>
-        <div class="abc-jacket-grid">
-            <p>
-                <label><strong>Invoice # (tttt-yy):</strong></label><br>
-                <input type="text" name="abc_invoice_number" value="<?php echo esc_attr($invoice); ?>" placeholder="1234-24" style="width: 220px;">
-            </p>
-            <p>
-                <label>Order Date:</label><br>
-                <input type="date" name="abc_order_date" value="<?php echo esc_attr($order_date); ?>">
-            </p>
-            <p>
-                <label>Approval Date:</label><br>
-                <input type="date" name="abc_approval_date" value="<?php echo esc_attr($approval_date); ?>">
-            </p>
-            <p>
-                <label><strong>Due Date:</strong></label><br>
-                <input type="date" name="abc_due_date" value="<?php echo esc_attr($due_date); ?>">
-            </p>
-            <p>
-                <label style="color:#b32d2e; font-weight:bold;">Rush Job?</label><br>
-                <label>
-                    <input type="checkbox" name="abc_is_rush" value="1" <?php checked($is_rush, '1'); ?>> Yes, Rush!
-                </label>
-            </p>
+        <div class="abc-jacket-grid abc-jacket-sheet">
+            <div class="abc-jacket-header">
+                <div class="abc-jacket-invoice">
+                    <label><strong>Invoice #</strong></label>
+                    <input type="text" name="abc_invoice_number" value="<?php echo esc_attr($invoice); ?>" placeholder="0401-26">
+                </div>
+                <div class="abc-jacket-year">
+                    <label>Year</label>
+                    <div class="abc-jacket-year-display"><?php echo esc_html(substr($invoice, -2)); ?></div>
+                </div>
+                <div class="abc-jacket-hot">
+                    <label>HOT</label>
+                    <input type="text" name="abc_client_name" value="<?php echo esc_attr($client_name); ?>" placeholder="Client / Name">
+                </div>
+                <div class="abc-jacket-date">
+                    <label>PROMISED</label>
+                    <input type="date" name="abc_promised_date" value="<?php echo esc_attr($promised_date); ?>">
+                </div>
+                <div class="abc-jacket-date">
+                    <label>ORDERED</label>
+                    <input type="date" name="abc_ordered_date" value="<?php echo esc_attr($ordered_date); ?>">
+                </div>
+            </div>
 
-            <p>
-                <label><strong>Current Stage:</strong></label><br>
-                <select name="abc_status" style="width: 260px;">
-                    <?php foreach ($workflow_options as $value => $label) : ?>
-                        <option value="<?php echo esc_attr($value); ?>" <?php selected($status, $value); ?>><?php echo esc_html($label); ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </p>
+            <div class="abc-jacket-row">
+                <label>NAME</label>
+                <input type="text" name="abc_job_description" value="<?php echo esc_attr($job_description); ?>" class="regular-text">
+            </div>
+
+            <div class="abc-jacket-checks">
+                <label><input type="checkbox" name="abc_is_new_job" value="1" <?php checked($is_new_job, '1'); ?>> NEW</label>
+                <label><input type="checkbox" name="abc_is_repeat_job" value="1" <?php checked($is_repeat_job, '1'); ?>> REPEAT</label>
+                <label><input type="checkbox" name="abc_has_changes" value="1" <?php checked($has_changes, '1'); ?>> CHANGES</label>
+                <label><input type="checkbox" name="abc_send_proof" value="1" <?php checked($send_proof, '1'); ?>> SEND PROOF TO:</label>
+                <input type="text" name="abc_send_proof_to" value="<?php echo esc_attr($send_proof_to); ?>" class="regular-text">
+                <label><input type="checkbox" name="abc_is_print_ready" value="1" <?php checked($is_print_ready, '1'); ?>> PRINT-READY</label>
+                <label><input type="checkbox" name="abc_has_copies" value="1" <?php checked($has_copies, '1'); ?>> COPIES</label>
+                <label><input type="checkbox" name="abc_notes_see_back" value="1" <?php checked($notes_see_back, '1'); ?>> NOTES: SEE BACK</label>
+                <label>LAST TKT #</label>
+                <input type="text" name="abc_last_ticket" value="<?php echo esc_attr($last_ticket); ?>">
+            </div>
+
+            <div class="abc-jacket-row">
+                <label>QTY / JOB NAME</label>
+                <textarea name="abc_job_name" rows="2"><?php echo esc_textarea($job_name); ?></textarea>
+            </div>
+
+            <div class="abc-jacket-row">
+                <label>STOCK</label>
+                <textarea name="abc_stock_notes" rows="3"><?php echo esc_textarea($stock_notes); ?></textarea>
+            </div>
+
+            <div class="abc-jacket-row">
+                <label>PRESS WORK / SET-UP</label>
+                <div class="abc-jacket-stack">
+                    <div class="abc-jacket-checks">
+                        <label><input type="checkbox" name="abc_press_two_sided" value="1" <?php checked($press_two_sided, '1'); ?>> 2 SIDED</label>
+                        <label><input type="checkbox" name="abc_press_color" value="1" <?php checked($press_color, '1'); ?>> COLOR</label>
+                        <label><input type="checkbox" name="abc_press_bw" value="1" <?php checked($press_bw, '1'); ?>> B/W</label>
+                    </div>
+                    <textarea name="abc_press_work" rows="3"><?php echo esc_textarea($press_work); ?></textarea>
+                </div>
+            </div>
+
+            <div class="abc-jacket-row">
+                <label>PRINT NOTES</label>
+                <textarea name="abc_print_notes" rows="2"><?php echo esc_textarea($print_notes); ?></textarea>
+            </div>
+
+            <div class="abc-jacket-row">
+                <label>NUMBERING / COLOR</label>
+                <div class="abc-jacket-stack">
+                    <div class="abc-jacket-checks">
+                        <label><input type="checkbox" name="abc_finish_numbering_required" value="1" <?php checked($finish_numbering_required, '1'); ?>> NUMBERING REQUIRED</label>
+                        <label><input type="checkbox" name="abc_finish_numbering_black" value="1" <?php checked($finish_numbering_black, '1'); ?>> BLACK</label>
+                    </div>
+                    <textarea name="abc_numbering_notes" rows="2"><?php echo esc_textarea($numbering_notes); ?></textarea>
+                </div>
+            </div>
+
+            <div class="abc-jacket-row">
+                <label>FINISHING</label>
+                <div class="abc-jacket-stack">
+                    <div class="abc-jacket-checks">
+                        <label><input type="checkbox" name="abc_finish_perf" value="1" <?php checked($finish_perf, '1'); ?>> PERF</label>
+                        <label><input type="checkbox" name="abc_finish_foil" value="1" <?php checked($finish_foil, '1'); ?>> FOIL</label>
+                        <label><input type="checkbox" name="abc_finish_wraparound" value="1" <?php checked($finish_wraparound, '1'); ?>> WRAPAROUND</label>
+                        <label><input type="checkbox" name="abc_finish_fold" value="1" <?php checked($finish_fold, '1'); ?>> FOLD</label>
+                        <label><input type="checkbox" name="abc_finish_score" value="1" <?php checked($finish_score, '1'); ?>> SCORE</label>
+                        <label><input type="checkbox" name="abc_finish_pad" value="1" <?php checked($finish_pad, '1'); ?>> PAD</label>
+                        <label><input type="checkbox" name="abc_finish_ncr" value="1" <?php checked($finish_ncr, '1'); ?>> NCR</label>
+                        <label><input type="checkbox" name="abc_finish_spiral" value="1" <?php checked($finish_spiral, '1'); ?>> SPIRAL</label>
+                    </div>
+                    <textarea name="abc_finish_notes" rows="3"><?php echo esc_textarea($finish_notes); ?></textarea>
+                </div>
+            </div>
+
+            <div class="abc-jacket-row">
+                <label>DELIVERY / SHIP TO</label>
+                <div class="abc-jacket-stack">
+                    <div class="abc-jacket-checks">
+                        <label><input type="checkbox" name="abc_delivery_deliver" value="1" <?php checked($delivery_deliver, '1'); ?>> DELIVER</label>
+                        <label><input type="checkbox" name="abc_delivery_ship" value="1" <?php checked($delivery_ship, '1'); ?>> SHIP TO</label>
+                        <label><input type="checkbox" name="abc_delivery_pickup" value="1" <?php checked($delivery_pickup, '1'); ?>> PICK UP</label>
+                    </div>
+                    <textarea name="abc_delivery_notes" rows="2"><?php echo esc_textarea($delivery_notes); ?></textarea>
+                </div>
+            </div>
+
+            <div class="abc-jacket-row">
+                <label>CONTACTED ON</label>
+                <div class="abc-jacket-stack">
+                    <div class="abc-jacket-checks">
+                        <label><input type="checkbox" name="abc_contact_email" value="1" <?php checked($contact_email, '1'); ?>> EMAIL</label>
+                        <label><input type="checkbox" name="abc_contact_phone" value="1" <?php checked($contact_phone, '1'); ?>> PHONE</label>
+                        <label><input type="checkbox" name="abc_contact_voicemail" value="1" <?php checked($contact_voicemail, '1'); ?>> VOICEMAIL</label>
+                        <label><input type="checkbox" name="abc_contact_po" value="1" <?php checked($contact_po, '1'); ?>> PO</label>
+                    </div>
+                    <textarea name="abc_contacted_on" rows="2"><?php echo esc_textarea($contacted_on); ?></textarea>
+                </div>
+            </div>
+
+            <div class="abc-jacket-row abc-jacket-meta">
+                <div>
+                    <label>Order Date</label>
+                    <input type="date" name="abc_order_date" value="<?php echo esc_attr($order_date); ?>">
+                </div>
+                <div>
+                    <label>Approval Date</label>
+                    <input type="date" name="abc_approval_date" value="<?php echo esc_attr($approval_date); ?>">
+                </div>
+                <div>
+                    <label>Due Date</label>
+                    <input type="date" name="abc_due_date" value="<?php echo esc_attr($due_date); ?>">
+                </div>
+                <div>
+                    <label>Rush?</label>
+                    <input type="checkbox" name="abc_is_rush" value="1" <?php checked($is_rush, '1'); ?>>
+                </div>
+                <div>
+                    <label>Current Stage</label>
+                    <select name="abc_status">
+                        <?php foreach ($workflow_options as $value => $label) : ?>
+                            <option value="<?php echo esc_attr($value); ?>" <?php selected($status, $value); ?>><?php echo esc_html($label); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+
+            <div class="abc-jacket-row abc-jacket-assignments">
+                <?php $users = get_users(['fields' => ['ID', 'display_name']]); ?>
+                <div>
+                    <label>Completed By</label>
+                    <select name="abc_completed_by">
+                        <option value="">Select user</option>
+                        <?php foreach ($users as $user) : ?>
+                            <option value="<?php echo esc_attr($user->ID); ?>" <?php selected($completed_by, (string) $user->ID); ?>><?php echo esc_html($user->display_name); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div>
+                    <label>Printer Tech</label>
+                    <select name="abc_printer_tech">
+                        <option value="">Select user</option>
+                        <?php foreach ($users as $user) : ?>
+                            <option value="<?php echo esc_attr($user->ID); ?>" <?php selected($printer_tech, (string) $user->ID); ?>><?php echo esc_html($user->display_name); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div>
+                    <label>Printer %</label>
+                    <input type="number" step="0.01" name="abc_printer_pct" value="<?php echo esc_attr($printer_pct); ?>">
+                </div>
+                <div>
+                    <label>Designer</label>
+                    <select name="abc_designer">
+                        <option value="">Select user</option>
+                        <?php foreach ($users as $user) : ?>
+                            <option value="<?php echo esc_attr($user->ID); ?>" <?php selected($designer, (string) $user->ID); ?>><?php echo esc_html($user->display_name); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div>
+                    <label>Designer %</label>
+                    <input type="number" step="0.01" name="abc_designer_pct" value="<?php echo esc_attr($designer_pct); ?>">
+                </div>
+            </div>
 
             <input type="hidden" name="abc_estimate_data" id="abc_estimate_data" value="<?php echo esc_attr($estimate_json); ?>">
 
@@ -114,6 +321,14 @@ class ABC_Meta_Box_Job_Jacket {
                     <div class="abc-product-library-row">
                         <label for="abc_template_vendor"><strong>Vendor</strong></label>
                         <input type="text" id="abc_template_vendor" placeholder="Vendor">
+                    </div>
+                    <div class="abc-product-library-row">
+                        <label for="abc_template_wc_product"><strong>Woo Product</strong></label>
+                        <input type="text" id="abc_template_wc_product" placeholder="WooCommerce Product ID" readonly>
+                    </div>
+                    <div class="abc-product-library-row">
+                        <label for="abc_template_custom_product"><strong>Custom Product</strong></label>
+                        <input type="text" id="abc_template_custom_product" placeholder="Custom product name">
                     </div>
                     <div class="abc-product-library-row">
                         <label for="abc_template_cost"><strong>Cost</strong></label>
@@ -195,9 +410,65 @@ class ABC_Meta_Box_Job_Jacket {
             'abc_approval_date',
             'abc_status',
             'abc_estimate_data',
+            'abc_client_name',
+            'abc_job_description',
+            'abc_promised_date',
+            'abc_ordered_date',
+            'abc_last_ticket',
+            'abc_send_proof_to',
+            'abc_job_name',
+            'abc_stock_notes',
+            'abc_press_work',
+            'abc_print_notes',
+            'abc_numbering_notes',
+            'abc_finish_notes',
+            'abc_delivery_notes',
+            'abc_contacted_on',
+            'abc_completed_by',
+            'abc_printer_tech',
+            'abc_designer',
+            'abc_printer_pct',
+            'abc_designer_pct',
+            'abc_is_new_job',
+            'abc_is_repeat_job',
+            'abc_has_changes',
+            'abc_is_print_ready',
+            'abc_has_copies',
+            'abc_notes_see_back',
+            'abc_send_proof',
+            'abc_press_two_sided',
+            'abc_press_color',
+            'abc_press_bw',
+            'abc_finish_perf',
+            'abc_finish_foil',
+            'abc_finish_wraparound',
+            'abc_finish_fold',
+            'abc_finish_score',
+            'abc_finish_pad',
+            'abc_finish_ncr',
+            'abc_finish_spiral',
+            'abc_finish_numbering_required',
+            'abc_finish_numbering_black',
+            'abc_delivery_deliver',
+            'abc_delivery_ship',
+            'abc_delivery_pickup',
+            'abc_contact_email',
+            'abc_contact_phone',
+            'abc_contact_voicemail',
+            'abc_contact_po',
         ];
 
         $cpt = new ABC_CPT_ABC_Estimate();
+        $textarea_fields = [
+            'abc_job_name',
+            'abc_stock_notes',
+            'abc_press_work',
+            'abc_print_notes',
+            'abc_numbering_notes',
+            'abc_finish_notes',
+            'abc_delivery_notes',
+            'abc_contacted_on',
+        ];
 
         foreach ($fields as $field) {
             if (!isset($_POST[$field])) {
@@ -215,6 +486,42 @@ class ABC_Meta_Box_Job_Jacket {
                 $new = $cpt->sanitize_invoice($new);
             } elseif (in_array($field, ['abc_order_date', 'abc_due_date', 'abc_approval_date'], true)) {
                 $new = $cpt->sanitize_date($new);
+            } elseif (in_array($field, ['abc_promised_date', 'abc_ordered_date'], true)) {
+                $new = $cpt->sanitize_date($new);
+            } elseif (in_array($field, [
+                'abc_is_new_job',
+                'abc_is_repeat_job',
+                'abc_has_changes',
+                'abc_is_print_ready',
+                'abc_has_copies',
+                'abc_notes_see_back',
+                'abc_send_proof',
+                'abc_press_two_sided',
+                'abc_press_color',
+                'abc_press_bw',
+                'abc_finish_perf',
+                'abc_finish_foil',
+                'abc_finish_wraparound',
+                'abc_finish_fold',
+                'abc_finish_score',
+                'abc_finish_pad',
+                'abc_finish_ncr',
+                'abc_finish_spiral',
+                'abc_finish_numbering_required',
+                'abc_finish_numbering_black',
+                'abc_delivery_deliver',
+                'abc_delivery_ship',
+                'abc_delivery_pickup',
+                'abc_contact_email',
+                'abc_contact_phone',
+                'abc_contact_voicemail',
+                'abc_contact_po',
+            ], true)) {
+                $new = $new === '1' ? '1' : '0';
+            } elseif (in_array($field, ['abc_printer_pct', 'abc_designer_pct'], true)) {
+                $new = is_numeric($new) ? (string) (float) $new : '0';
+            } elseif (in_array($field, $textarea_fields, true)) {
+                $new = sanitize_textarea_field($new);
             } else {
                 $new = sanitize_text_field($new);
             }

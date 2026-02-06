@@ -161,12 +161,14 @@
     }
 
     var html = '<table class="widefat striped"><thead><tr>' +
-      '<th>Product</th><th>Qty</th><th>Vendor</th><th>Cost</th><th>Sell</th><th>Options</th>' +
+      '<th>Product</th><th>WC Product</th><th>Qty</th><th>Vendor</th><th>Cost</th><th>Sell</th><th>Options</th>' +
       '</tr></thead><tbody>';
     items.forEach(function (item) {
       var options = item.options_json ? JSON.stringify(item.options_json) : '';
+      var wcLabel = item.wc_product_id ? ('ID ' + item.wc_product_id) : (item.custom_product_name || '');
       html += '<tr>' +
         '<td>' + escapeHtml(item.product_label || '') + '</td>' +
+        '<td>' + escapeHtml(wcLabel) + '</td>' +
         '<td>' + escapeHtml(item.qty || '') + '</td>' +
         '<td>' + escapeHtml(item.vendor || '') + '</td>' +
         '<td>' + escapeHtml(item.cost_snapshot || '') + '</td>' +
@@ -184,6 +186,8 @@
     var $select = $('#abc_template_select');
     var $optionsContainer = $('#abc-template-options');
     var $vendor = $('#abc_template_vendor');
+    var $wcProduct = $('#abc_template_wc_product');
+    var $customProduct = $('#abc_template_custom_product');
     var $qty = $('#abc_template_qty');
     var $cost = $('#abc_template_cost');
     var $markupType = $('#abc_template_markup_type');
@@ -231,6 +235,7 @@
             .data('vendor', template.vendor_default)
             .data('markup-type', template.markup_type)
             .data('markup-value', template.markup_value)
+            .data('wc-product-id', template.wc_product_id)
             .text(template.title);
           $select.append(option);
         });
@@ -287,8 +292,12 @@
       var vendorDefault = $selected.data('vendor') || '';
       var markupType = $selected.data('markup-type') || 'percent';
       var markupValue = $selected.data('markup-value') || 0;
+      var wcProductId = $selected.data('wc-product-id') || '';
+      var label = $selected.text() || '';
       buildOptions($optionsContainer, parseSchema(schemaText));
       $vendor.val(vendorDefault);
+      $wcProduct.val(wcProductId);
+      $customProduct.val(label || '');
       $markupType.val(markupType);
       $markupValue.val(markupValue);
       refreshSellPrice();
@@ -323,6 +332,8 @@
         qty: qty,
         options_json: options,
         vendor: $vendor.val(),
+        wc_product_id: $wcProduct.val() || null,
+        custom_product_name: $customProduct.val() || label,
         cost_snapshot: costVal,
         markup_type: markupType,
         markup_value: markupValue,

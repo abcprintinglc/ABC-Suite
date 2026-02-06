@@ -34,6 +34,15 @@ class ABC_Admin_Logbook {
 
         add_submenu_page(
             'edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE,
+            'Payout Report',
+            'Payout Report',
+            'manage_options',
+            'abc-payout-report',
+            [new ABC_Payout_Report(), 'render_page']
+        );
+
+        add_submenu_page(
+            'edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE,
             'Import / Data Tools',
             'Import / Data Tools',
             'manage_options',

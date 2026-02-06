@@ -22,6 +22,7 @@ class ABC_Suite {
         require_once ABC_SUITE_PATH . 'includes/class-assets.php';
         require_once ABC_SUITE_PATH . 'includes/class-price-matrix.php';
         require_once ABC_SUITE_PATH . 'includes/class-price-matrix-admin.php';
+        require_once ABC_SUITE_PATH . 'includes/class-payout-report.php';
     }
 
     private function init_modules(): void {

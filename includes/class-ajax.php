@@ -161,6 +161,7 @@ class ABC_Ajax {
                 'option_schema' => get_post_meta($template->ID, 'abc_template_option_schema', true),
                 'markup_type' => get_post_meta($template->ID, 'abc_template_markup_type', true),
                 'markup_value' => get_post_meta($template->ID, 'abc_template_markup_value', true),
+                'wc_product_id' => get_post_meta($template->ID, 'abc_template_wc_product_id', true),
             ];
         }
 
@@ -198,6 +199,7 @@ class ABC_Ajax {
             'markup_value' => get_post_meta($template->ID, 'abc_template_markup_value', true),
             'notes' => get_post_meta($template->ID, 'abc_template_notes', true),
             'schema_version' => get_post_meta($template->ID, 'abc_template_schema_version', true),
+            'wc_product_id' => get_post_meta($template->ID, 'abc_template_wc_product_id', true),
         ]);
     }
 
@@ -285,6 +287,7 @@ class ABC_Ajax {
             'abc_template_notes' => sanitize_textarea_field(wp_unslash($_POST['notes'] ?? '')),
             'abc_template_option_schema' => wp_unslash($_POST['option_schema'] ?? '{}'),
             'abc_template_schema_version' => sanitize_text_field(wp_unslash($_POST['schema_version'] ?? '1')),
+            'abc_template_wc_product_id' => sanitize_text_field(wp_unslash($_POST['wc_product_id'] ?? '')),
         ];
 
         $cpt = new ABC_CPT_ABC_Product_Template();
