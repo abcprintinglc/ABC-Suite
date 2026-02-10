@@ -17,7 +17,7 @@ class ABC_CSV_Tools {
         ?>
         <div class="wrap">
             <h1>Data Tools</h1>
-            <p class="description">Bulk delete runs in batches to prevent timeout errors on large datasets.</p>
+            <p class="description">Bulk delete runs in strict micro-batches (50 records/request) to reduce 503 timeout risk on shared hosting.</p>
 
             <div class="card" style="max-width: 900px; padding: 16px 20px; margin-top: 12px;">
                 <h2 style="margin-top:0;">Accepted CSV formats</h2>
@@ -217,24 +217,35 @@ class ABC_CSV_Tools {
             wp_die('Invalid nonce.');
         }
 
-        $batch_size = 200;
-        $results = new WP_Query([
-            'post_type' => ABC_CPT_ABC_Estimate::POST_TYPE,
-            'posts_per_page' => $batch_size,
-            'meta_key' => 'abc_is_imported',
-            'meta_value' => '1',
-            'fields' => 'ids',
-            'no_found_rows' => true,
-        ]);
+        $batch_size = 50;
+        global $wpdb;
+
+        $meta_table = $wpdb->postmeta;
+        $posts_table = $wpdb->posts;
+
+        $ids = $wpdb->get_col($wpdb->prepare(
+            "SELECT pm.post_id
+             FROM {$meta_table} pm
+             INNER JOIN {$posts_table} p ON p.ID = pm.post_id
+             WHERE pm.meta_key = %s
+               AND pm.meta_value = %s
+               AND p.post_type = %s
+             ORDER BY pm.post_id ASC
+             LIMIT %d",
+            'abc_is_imported',
+            '1',
+            ABC_CPT_ABC_Estimate::POST_TYPE,
+            $batch_size
+        ));
 
         $deleted_total = (int) get_transient('abc_csv_delete_count_' . get_current_user_id());
-        $deleted_total += count($results->posts);
+        $deleted_total += count($ids);
 
-        foreach ($results->posts as $post_id) {
-            wp_delete_post($post_id, true);
+        foreach ($ids as $post_id) {
+            wp_delete_post((int) $post_id, true);
         }
 
-        if (count($results->posts) === $batch_size) {
+        if (count($ids) === $batch_size) {
             set_transient('abc_csv_delete_count_' . get_current_user_id(), $deleted_total, 10 * MINUTE_IN_SECONDS);
             $continue_url = add_query_arg([
                 'action' => 'abc_bulk_delete',

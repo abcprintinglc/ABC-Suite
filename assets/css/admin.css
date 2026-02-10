@@ -236,3 +236,28 @@
 .abc-jacket-checks label {
     font-size: 11px;
 }
+
+.abc-jacket-stage-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+.abc-jacket-stage-row label {
+    font-weight: 700;
+}
+.abc-jacket-stage-row .abc-stage-select {
+    min-width: 140px;
+}
+.abc-jacket-header {
+    grid-template-columns: 130px 80px 1.3fr 1fr 1fr;
+}
+.abc-jacket-hot label {
+    font-size: 34px;
+    color: #cc0000;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.abc-jacket-hot label input[type="checkbox"] { margin: 0; }
+.abc-jacket-year label { font-size: 10px; }

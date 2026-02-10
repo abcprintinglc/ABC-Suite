@@ -18,7 +18,34 @@ class ABC_Estimator_Settings {
             update_option('abc_click_bw_double', is_numeric($_POST['abc_click_bw_double'] ?? null) ? (string) (float) $_POST['abc_click_bw_double'] : '0');
             update_option('abc_click_color_single', is_numeric($_POST['abc_click_color_single'] ?? null) ? (string) (float) $_POST['abc_click_color_single'] : '0');
             update_option('abc_click_color_double', is_numeric($_POST['abc_click_color_double'] ?? null) ? (string) (float) $_POST['abc_click_color_double'] : '0');
-            $message = 'Settings saved.';
+            update_option('abc_lease_monthly_cost', is_numeric($_POST['abc_lease_monthly_cost'] ?? null) ? (string) (float) $_POST['abc_lease_monthly_cost'] : '0');
+            update_option('abc_service_monthly_cost', is_numeric($_POST['abc_service_monthly_cost'] ?? null) ? (string) (float) $_POST['abc_service_monthly_cost'] : '0');
+            update_option('abc_expected_bw_clicks', absint($_POST['abc_expected_bw_clicks'] ?? 0));
+            update_option('abc_expected_color_clicks', absint($_POST['abc_expected_color_clicks'] ?? 0));
+            update_option('abc_contract_bw_click_cost', is_numeric($_POST['abc_contract_bw_click_cost'] ?? null) ? (string) (float) $_POST['abc_contract_bw_click_cost'] : '0');
+            update_option('abc_contract_color_click_cost', is_numeric($_POST['abc_contract_color_click_cost'] ?? null) ? (string) (float) $_POST['abc_contract_color_click_cost'] : '0');
+            update_option('abc_target_margin_pct', is_numeric($_POST['abc_target_margin_pct'] ?? null) ? (string) (float) $_POST['abc_target_margin_pct'] : '40');
+
+            $lease = (float) get_option('abc_lease_monthly_cost', '0');
+            $service = (float) get_option('abc_service_monthly_cost', '0');
+            $expected_bw = (int) get_option('abc_expected_bw_clicks', 0);
+            $expected_color = (int) get_option('abc_expected_color_clicks', 0);
+            $contract_bw = (float) get_option('abc_contract_bw_click_cost', '0');
+            $contract_color = (float) get_option('abc_contract_color_click_cost', '0');
+            $margin_pct = (float) get_option('abc_target_margin_pct', '40');
+
+            $monthly_total_clicks = max(1, $expected_bw + $expected_color);
+            $overhead_per_click = ($lease + $service) / $monthly_total_clicks;
+            $margin_factor = max(0.01, 1 - ($margin_pct / 100));
+            $recommended_bw = ($contract_bw + $overhead_per_click) / $margin_factor;
+            $recommended_color = ($contract_color + $overhead_per_click) / $margin_factor;
+
+            update_option('abc_click_bw_single', (string) round($recommended_bw, 4));
+            update_option('abc_click_bw_double', (string) round($recommended_bw * 2, 4));
+            update_option('abc_click_color_single', (string) round($recommended_color, 4));
+            update_option('abc_click_color_double', (string) round($recommended_color * 2, 4));
+
+            $message = 'Settings saved. Click sell rates were recalculated from lease/contract costs and target margin.';
         }
 
         $token = (string) get_option('abc_square_access_token', '');
@@ -31,6 +58,13 @@ class ABC_Estimator_Settings {
         $click_bw_double = (string) get_option('abc_click_bw_double', '0.04');
         $click_color_single = (string) get_option('abc_click_color_single', '0.08');
         $click_color_double = (string) get_option('abc_click_color_double', '0.16');
+        $lease_monthly = (string) get_option('abc_lease_monthly_cost', '0');
+        $service_monthly = (string) get_option('abc_service_monthly_cost', '0');
+        $expected_bw = (string) get_option('abc_expected_bw_clicks', '0');
+        $expected_color = (string) get_option('abc_expected_color_clicks', '0');
+        $contract_bw = (string) get_option('abc_contract_bw_click_cost', '0');
+        $contract_color = (string) get_option('abc_contract_color_click_cost', '0');
+        $target_margin_pct = (string) get_option('abc_target_margin_pct', '40');
         ?>
         <div class="wrap">
             <h1 class="wp-heading-inline">Estimator Settings</h1>
@@ -58,6 +92,38 @@ class ABC_Estimator_Settings {
                                 <label>Color Single</label> <input type="number" step="0.0001" name="abc_click_color_single" value="<?php echo esc_attr($click_color_single); ?>" class="small-text">
                                 <label style="margin-left:12px;">Color Double</label> <input type="number" step="0.0001" name="abc_click_color_double" value="<?php echo esc_attr($click_color_double); ?>" class="small-text">
                             </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>Profitability Model (Lease / Contract)</h2>
+                <p class="description">Enter your contract and lease costs to auto-calculate profitable click sell rates. If your click rates PDF is updated, re-enter values here and save.</p>
+                <table class="form-table">
+                    <tbody>
+                        <tr>
+                            <th scope="row">Monthly Fixed Costs</th>
+                            <td>
+                                <label>Lease</label> <input type="number" step="0.01" name="abc_lease_monthly_cost" value="<?php echo esc_attr($lease_monthly); ?>" class="small-text">
+                                <label style="margin-left:12px;">Service / Maintenance</label> <input type="number" step="0.01" name="abc_service_monthly_cost" value="<?php echo esc_attr($service_monthly); ?>" class="small-text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Expected Monthly Volume</th>
+                            <td>
+                                <label>B/W Clicks</label> <input type="number" name="abc_expected_bw_clicks" value="<?php echo esc_attr($expected_bw); ?>" class="small-text">
+                                <label style="margin-left:12px;">Color Clicks</label> <input type="number" name="abc_expected_color_clicks" value="<?php echo esc_attr($expected_color); ?>" class="small-text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Contract Cost / Click</th>
+                            <td>
+                                <label>B/W Cost</label> <input type="number" step="0.0001" name="abc_contract_bw_click_cost" value="<?php echo esc_attr($contract_bw); ?>" class="small-text">
+                                <label style="margin-left:12px;">Color Cost</label> <input type="number" step="0.0001" name="abc_contract_color_click_cost" value="<?php echo esc_attr($contract_color); ?>" class="small-text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Target Margin %</th>
+                            <td><input type="number" step="0.01" name="abc_target_margin_pct" value="<?php echo esc_attr($target_margin_pct); ?>" class="small-text"></td>
                         </tr>
                     </tbody>
                 </table>

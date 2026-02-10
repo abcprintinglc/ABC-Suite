@@ -8,6 +8,15 @@ class ABC_Admin_Logbook {
     public function register_menu(): void {
         add_submenu_page(
             'edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE,
+            'ABC Suite Hub',
+            'ABC Suite Hub',
+            'edit_posts',
+            'abc-suite-hub',
+            [$this, 'render_hub_page']
+        );
+
+        add_submenu_page(
+            'edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE,
             'Product Library',
             'Product Library',
             'edit_posts',
@@ -66,6 +75,38 @@ class ABC_Admin_Logbook {
             'abc-data-tools',
             [new ABC_CSV_Tools(), 'render_page']
         );
+    }
+
+
+    public function render_hub_page(): void {
+        if (!current_user_can('edit_posts')) {
+            wp_die('Insufficient permissions.');
+        }
+
+        $links = [
+            ['label' => 'Estimator / Jobs', 'url' => admin_url('edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE)],
+            ['label' => 'Product Library', 'url' => admin_url('edit.php?post_type=' . ABC_CPT_ABC_Product_Template::POST_TYPE)],
+            ['label' => 'Price Matrix', 'url' => admin_url('edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE . '&page=abc-price-matrix')],
+            ['label' => 'Payout Report', 'url' => admin_url('edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE . '&page=abc-payout-report')],
+            ['label' => 'Estimator Settings', 'url' => admin_url('edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE . '&page=abc-estimator-settings')],
+            ['label' => 'Estimate Learning Log', 'url' => admin_url('edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE . '&page=abc-estimate-learning-log')],
+            ['label' => 'Design Requests', 'url' => admin_url('edit.php?post_type=' . ABC_Design_Request::POST_TYPE)],
+            ['label' => 'Data Tools', 'url' => admin_url('edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE . '&page=abc-data-tools')],
+        ];
+        ?>
+        <div class="wrap">
+            <h1 class="wp-heading-inline">ABC Suite Hub</h1>
+            <p class="description">Quick access to the full ABC Suite tool list.</p>
+            <div class="abc-matrix-grid">
+                <?php foreach ($links as $link) : ?>
+                    <div class="abc-matrix-card">
+                        <h2><?php echo esc_html($link['label']); ?></h2>
+                        <p><a class="button button-primary" href="<?php echo esc_url($link['url']); ?>">Open</a></p>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php
     }
 
     public function render_page(): void {

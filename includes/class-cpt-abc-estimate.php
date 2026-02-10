@@ -96,6 +96,7 @@ class ABC_CPT_ABC_Estimate {
             'abc_ordered_date',
             'abc_last_ticket',
             'abc_send_proof_to',
+            'abc_qty',
             'abc_completed_by',
             'abc_printer_tech',
             'abc_designer',

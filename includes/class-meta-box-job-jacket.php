@@ -50,6 +50,7 @@ class ABC_Meta_Box_Job_Jacket {
         $ordered_date = (string) get_post_meta($post->ID, 'abc_ordered_date', true);
         $last_ticket = (string) get_post_meta($post->ID, 'abc_last_ticket', true);
         $send_proof_to = (string) get_post_meta($post->ID, 'abc_send_proof_to', true);
+        $qty = (string) get_post_meta($post->ID, 'abc_qty', true);
         $job_name = (string) get_post_meta($post->ID, 'abc_job_name', true);
         $stock_notes = (string) get_post_meta($post->ID, 'abc_stock_notes', true);
         $press_work = (string) get_post_meta($post->ID, 'abc_press_work', true);
@@ -137,6 +138,14 @@ class ABC_Meta_Box_Job_Jacket {
         ];
         ?>
         <div class="abc-jacket-grid abc-jacket-sheet">
+            <div class="abc-jacket-stage-row">
+                <label>Current Stage</label>
+                <select name="abc_status" class="abc-stage-select">
+                    <?php foreach ($workflow_options as $value => $label) : ?>
+                        <option value="<?php echo esc_attr($value); ?>" <?php selected($status, $value); ?>><?php echo esc_html($label); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
             <div class="abc-jacket-header">
                 <div class="abc-jacket-invoice">
                     <label><strong>Invoice #</strong></label>
@@ -147,7 +156,7 @@ class ABC_Meta_Box_Job_Jacket {
                     <div class="abc-jacket-year-display"><?php echo esc_html(substr($invoice, -2)); ?></div>
                 </div>
                 <div class="abc-jacket-hot">
-                    <label>HOT</label>
+                    <label>HOT <input type="checkbox" name="abc_is_rush" value="1" <?php checked($is_rush, '1'); ?>></label>
                     <input type="text" name="abc_client_name" value="<?php echo esc_attr($client_name); ?>" placeholder="Client / Name">
                 </div>
                 <div class="abc-jacket-date">
@@ -194,7 +203,12 @@ class ABC_Meta_Box_Job_Jacket {
             </div>
 
             <div class="abc-jacket-row">
-                <label>QTY / JOB NAME</label>
+                <label>QTY</label>
+                <input type="text" name="abc_qty" value="<?php echo esc_attr($qty); ?>">
+            </div>
+
+            <div class="abc-jacket-row">
+                <label>JOB NAME</label>
                 <textarea name="abc_job_name" rows="2"><?php echo esc_textarea($job_name); ?></textarea>
             </div>
 
@@ -216,7 +230,7 @@ class ABC_Meta_Box_Job_Jacket {
             </div>
 
             <div class="abc-jacket-row">
-                <label>PRINT NOTES</label>
+                <label>NOTES (DETAIL)</label>
                 <textarea name="abc_print_notes" rows="2"><?php echo esc_textarea($print_notes); ?></textarea>
             </div>
 
@@ -285,18 +299,6 @@ class ABC_Meta_Box_Job_Jacket {
                 <div>
                     <label>Due Date</label>
                     <input type="date" name="abc_due_date" value="<?php echo esc_attr($due_date); ?>">
-                </div>
-                <div>
-                    <label>Rush?</label>
-                    <input type="checkbox" name="abc_is_rush" value="1" <?php checked($is_rush, '1'); ?>>
-                </div>
-                <div>
-                    <label>Current Stage</label>
-                    <select name="abc_status">
-                        <?php foreach ($workflow_options as $value => $label) : ?>
-                            <option value="<?php echo esc_attr($value); ?>" <?php selected($status, $value); ?>><?php echo esc_html($label); ?></option>
-                        <?php endforeach; ?>
-                    </select>
                 </div>
             </div>
 
@@ -514,6 +516,7 @@ class ABC_Meta_Box_Job_Jacket {
             'abc_ordered_date',
             'abc_last_ticket',
             'abc_send_proof_to',
+            'abc_qty',
             'abc_job_name',
             'abc_stock_notes',
             'abc_press_work',
