@@ -170,22 +170,17 @@ class ABC_Meta_Box_Job_Jacket {
             </div>
 
             <div class="abc-jacket-row">
-                <label>NAME</label>
+                <label>CLIENT</label>
                 <div class="abc-jacket-stack">
-                    <input type="text" name="abc_job_description" value="<?php echo esc_attr($job_description); ?>" class="regular-text">
-                    <input type="email" name="abc_client_email" value="<?php echo esc_attr($client_email); ?>" placeholder="Client Email">
-                    <div class="abc-jacket-checks">
-                        <label style="min-width:90px;">Client</label>
-                        <select name="abc_client_user_id">
-                            <option value="">Select customer</option>
-                            <?php foreach ($customer_users as $customer_user) : ?>
-                                <?php $org_role = (string) get_user_meta($customer_user->ID, 'abc_b2b_org_role', true); ?>
-                                <?php $org_id = (string) get_user_meta($customer_user->ID, 'abc_b2b_org_id', true); ?>
-                                <option value="<?php echo esc_attr((string) $customer_user->ID); ?>" data-parent="<?php echo esc_attr($org_id !== '' ? $org_id : ''); ?>" <?php selected($client_user_id, (string) $customer_user->ID); ?>><?php echo esc_html($customer_user->display_name . ($org_role === 'admin' ? ' (Store Manager)' : ' (Employee)')); ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                        <input type="hidden" name="abc_client_parent_id" value="<?php echo esc_attr($client_parent_id); ?>">
-                    </div>
+                    <select name="abc_client_user_id">
+                        <option value="">Select customer</option>
+                        <?php foreach ($customer_users as $customer_user) : ?>
+                            <?php $org_role = (string) get_user_meta($customer_user->ID, 'abc_b2b_org_role', true); ?>
+                            <?php $org_id = (string) get_user_meta($customer_user->ID, 'abc_b2b_org_id', true); ?>
+                            <option value="<?php echo esc_attr((string) $customer_user->ID); ?>" data-parent="<?php echo esc_attr($org_id !== '' ? $org_id : ''); ?>" <?php selected($client_user_id, (string) $customer_user->ID); ?>><?php echo esc_html($customer_user->display_name . ($org_role === 'admin' ? ' (Store Manager)' : ' (Employee)')); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <input type="hidden" name="abc_client_parent_id" value="<?php echo esc_attr($client_parent_id); ?>">
                 </div>
             </div>
 
@@ -193,13 +188,29 @@ class ABC_Meta_Box_Job_Jacket {
                 <label><input type="checkbox" name="abc_is_new_job" value="1" <?php checked($is_new_job, '1'); ?>> NEW</label>
                 <label><input type="checkbox" name="abc_is_repeat_job" value="1" <?php checked($is_repeat_job, '1'); ?>> REPEAT</label>
                 <label><input type="checkbox" name="abc_has_changes" value="1" <?php checked($has_changes, '1'); ?>> CHANGES</label>
-                <label><input type="checkbox" name="abc_send_proof" value="1" <?php checked($send_proof, '1'); ?>> SEND PROOF TO:</label>
-                <input type="text" name="abc_send_proof_to" value="<?php echo esc_attr($send_proof_to); ?>" class="regular-text">
+                <label><input type="checkbox" name="abc_send_proof" value="1" <?php checked($send_proof, '1'); ?>> SEND PROOF</label>
                 <label><input type="checkbox" name="abc_is_print_ready" value="1" <?php checked($is_print_ready, '1'); ?>> PRINT-READY</label>
                 <label><input type="checkbox" name="abc_has_copies" value="1" <?php checked($has_copies, '1'); ?>> COPIES</label>
                 <label><input type="checkbox" name="abc_notes_see_back" value="1" <?php checked($notes_see_back, '1'); ?>> NOTES: SEE BACK</label>
                 <label>LAST TKT #</label>
                 <input type="text" name="abc_last_ticket" value="<?php echo esc_attr($last_ticket); ?>">
+            </div>
+
+            <div class="abc-jacket-row">
+                <label>SEND PROOF TO</label>
+                <div class="abc-jacket-stack">
+                    <input type="text" name="abc_send_proof_to" value="<?php echo esc_attr($send_proof_to); ?>" class="regular-text" placeholder="Client Email">
+                </div>
+            </div>
+
+            <div class="abc-jacket-row">
+                <label>APPROVAL DATE</label>
+                <input type="date" name="abc_approval_date" value="<?php echo esc_attr($approval_date); ?>">
+            </div>
+
+            <div class="abc-jacket-row">
+                <label>NOTES</label>
+                <input type="text" name="abc_print_notes" value="<?php echo esc_attr($print_notes); ?>">
             </div>
 
             <div class="abc-jacket-row">
@@ -291,10 +302,6 @@ class ABC_Meta_Box_Job_Jacket {
                 <div>
                     <label>Order Date</label>
                     <input type="date" name="abc_order_date" value="<?php echo esc_attr($order_date); ?>">
-                </div>
-                <div>
-                    <label>Approval Date</label>
-                    <input type="date" name="abc_approval_date" value="<?php echo esc_attr($approval_date); ?>">
                 </div>
                 <div>
                     <label>Due Date</label>

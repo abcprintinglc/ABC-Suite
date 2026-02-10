@@ -7,210 +7,114 @@ class ABC_Price_Matrix_Admin {
         }
 
         $message = '';
-        if (isset($_POST['abc_price_matrix_nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['abc_price_matrix_nonce'])), 'abc_price_matrix_action')) {
-            $payload = [
-                'id' => isset($_POST['matrix_id']) ? absint($_POST['matrix_id']) : 0,
-                'template_id' => isset($_POST['template_id']) ? absint($_POST['template_id']) : 0,
-                'vendor' => isset($_POST['vendor']) ? sanitize_text_field(wp_unslash($_POST['vendor'])) : '',
-                'qty_min' => isset($_POST['qty_min']) ? absint($_POST['qty_min']) : 0,
-                'qty_max' => isset($_POST['qty_max']) ? sanitize_text_field(wp_unslash($_POST['qty_max'])) : '',
-                'options' => ABC_Price_Matrix::parse_options_json(isset($_POST['options_json']) ? wp_unslash($_POST['options_json']) : ''),
-                'turnaround' => isset($_POST['turnaround']) ? sanitize_text_field(wp_unslash($_POST['turnaround'])) : '',
-                'cost' => isset($_POST['cost']) ? sanitize_text_field(wp_unslash($_POST['cost'])) : '0',
-                'last_verified' => isset($_POST['last_verified']) ? sanitize_text_field(wp_unslash($_POST['last_verified'])) : '',
-                'source_note' => isset($_POST['source_note']) ? sanitize_textarea_field(wp_unslash($_POST['source_note'])) : '',
+        if (isset($_POST['abc_price_matrix_v2_nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['abc_price_matrix_v2_nonce'])), 'abc_price_matrix_v2_action')) {
+            $profiles = [];
+            $categories = ['commercial_printing', 'raised_printing', 'banners', 'apparel', 'booklets'];
+            foreach ($categories as $cat) {
+                $profiles[$cat] = [
+                    'label' => ucwords(str_replace('_', ' ', $cat)),
+                    'setup_minutes' => isset($_POST[$cat . '_setup_minutes']) ? absint($_POST[$cat . '_setup_minutes']) : 0,
+                    'markup_percent' => isset($_POST[$cat . '_markup_percent']) && is_numeric($_POST[$cat . '_markup_percent']) ? (float) $_POST[$cat . '_markup_percent'] : 0,
+                    'min_order' => isset($_POST[$cat . '_min_order']) && is_numeric($_POST[$cat . '_min_order']) ? (float) $_POST[$cat . '_min_order'] : 0,
+                ];
+            }
+            update_option('abc_click_price_profiles', $profiles);
+
+            $finishing = [
+                'perf' => isset($_POST['finish_perf']) && is_numeric($_POST['finish_perf']) ? (float) $_POST['finish_perf'] : 0,
+                'foil' => isset($_POST['finish_foil']) && is_numeric($_POST['finish_foil']) ? (float) $_POST['finish_foil'] : 0,
+                'fold' => isset($_POST['finish_fold']) && is_numeric($_POST['finish_fold']) ? (float) $_POST['finish_fold'] : 0,
+                'score' => isset($_POST['finish_score']) && is_numeric($_POST['finish_score']) ? (float) $_POST['finish_score'] : 0,
+                'pad' => isset($_POST['finish_pad']) && is_numeric($_POST['finish_pad']) ? (float) $_POST['finish_pad'] : 0,
+                'ncr' => isset($_POST['finish_ncr']) && is_numeric($_POST['finish_ncr']) ? (float) $_POST['finish_ncr'] : 0,
+                'spiral' => isset($_POST['finish_spiral']) && is_numeric($_POST['finish_spiral']) ? (float) $_POST['finish_spiral'] : 0,
             ];
-
-            $matrix_category = isset($_POST['matrix_category']) ? sanitize_text_field(wp_unslash($_POST['matrix_category'])) : '';
-            if ($matrix_category !== '' && empty($payload['options']['Category'])) {
-                $payload['options']['Category'] = $matrix_category;
-            }
-
-            if ($payload['template_id'] && $payload['vendor'] !== '' && $payload['qty_min'] > 0) {
-                ABC_Price_Matrix::upsert($payload);
-                $message = 'Matrix row saved.';
-            } else {
-                $message = 'Please complete required fields (template, vendor, qty min).';
-            }
+            update_option('abc_click_finishing_costs', $finishing);
+            $message = 'Click-rate matrix saved.';
         }
 
-        $templates = get_posts([
-            'post_type' => ABC_CPT_ABC_Product_Template::POST_TYPE,
-            'posts_per_page' => 200,
-            'post_status' => 'publish',
-            'orderby' => 'title',
-            'order' => 'ASC',
-        ]);
+        $profiles = get_option('abc_click_price_profiles', []);
+        $finishing = get_option('abc_click_finishing_costs', []);
 
-        $filter_template = isset($_GET['template_id']) ? absint($_GET['template_id']) : 0;
-        $filter_vendor = isset($_GET['vendor']) ? sanitize_text_field(wp_unslash($_GET['vendor'])) : '';
-        $filter_search = isset($_GET['s']) ? sanitize_text_field(wp_unslash($_GET['s'])) : '';
+        $hourly = (float) get_option('abc_hourly_rate', '20');
+        $bw_single = (float) get_option('abc_click_bw_single', '0.02');
+        $bw_double = (float) get_option('abc_click_bw_double', '0.04');
+        $color_single = (float) get_option('abc_click_color_single', '0.08');
+        $color_double = (float) get_option('abc_click_color_double', '0.16');
 
-        global $wpdb;
-        $table = ABC_Price_Matrix::table_name();
-        $where = 'WHERE 1=1';
-        $args = [];
-
-        if ($filter_template) {
-            $where .= ' AND template_id = %d';
-            $args[] = $filter_template;
-        }
-        if ($filter_vendor !== '') {
-            $where .= ' AND vendor = %s';
-            $args[] = $filter_vendor;
-        }
-        if ($filter_search !== '') {
-            $like = '%' . $wpdb->esc_like($filter_search) . '%';
-            $where .= ' AND (options_json LIKE %s OR source_note LIKE %s)';
-            $args[] = $like;
-            $args[] = $like;
-        }
-
-        $query = "SELECT * FROM {$table} {$where} ORDER BY id DESC LIMIT 200";
-        $rows = $args ? $wpdb->get_results($wpdb->prepare($query, $args), ARRAY_A) : $wpdb->get_results($query, ARRAY_A);
+        $categories = [
+            'commercial_printing' => 'Commercial Printing',
+            'raised_printing' => 'Raised Printing',
+            'banners' => 'Banners',
+            'apparel' => 'Apparel',
+            'booklets' => 'Booklets',
+        ];
         ?>
         <div class="wrap">
-            <h1 class="wp-heading-inline">Price Matrix</h1>
-            <p class="description">Use categories + option JSON to keep pricing clear for Commercial Printing, Raised/Specialty, Banners, Apparel, and Booklets. Labor rate + click-rate defaults are in Estimator Settings.</p>
+            <h1 class="wp-heading-inline">Price Matrix (Click-Rate Model)</h1>
+            <p class="description">This matrix is now based on click rates + labor. Configure category setup/markup and finishing add-ons below. Duplo trim presets are managed in Estimator Settings and can be referenced via option key `Duplo` in template options.</p>
+
             <?php if ($message !== '') : ?>
-                <div class="notice notice-info is-dismissible"><p><?php echo esc_html($message); ?></p></div>
+                <div class="notice notice-success is-dismissible"><p><?php echo esc_html($message); ?></p></div>
             <?php endif; ?>
 
-            <div class="abc-matrix-grid">
-                <div class="abc-matrix-card">
-                    <h2>Add / Update Matrix Row</h2>
-                    <form method="post" id="abc-price-matrix-form">
-                        <?php wp_nonce_field('abc_price_matrix_action', 'abc_price_matrix_nonce'); ?>
-                        <input type="hidden" name="matrix_id" id="abc_matrix_id" value="">
-                        <table class="form-table">
-                            <tbody>
-                                <tr>
-                                    <th scope="row">Template</th>
-                                    <td>
-                                        <select name="template_id" id="abc_matrix_template" required>
-                                            <option value="">Select template</option>
-                                            <?php foreach ($templates as $template) : ?>
-                                                <option value="<?php echo esc_attr($template->ID); ?>"><?php echo esc_html($template->post_title); ?></option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">Category</th>
-                                    <td>
-                                        <select name="matrix_category" id="abc_matrix_category">
-                                            <option value="">Select category</option>
-                                            <option value="Commercial Printing">Commercial Printing</option>
-                                            <option value="Raised Printing">Raised Printing</option>
-                                            <option value="Banners">Banners</option>
-                                            <option value="Apparel">Apparel</option>
-                                            <option value="Booklets">Booklets</option>
-                                        </select>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">Vendor</th>
-                                    <td><input type="text" name="vendor" id="abc_matrix_vendor" class="regular-text" required></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">Qty Min</th>
-                                    <td><input type="number" name="qty_min" id="abc_matrix_qty_min" class="small-text" required></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">Qty Max</th>
-                                    <td><input type="number" name="qty_max" id="abc_matrix_qty_max" class="small-text" placeholder="Leave blank for open-ended"></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">Options JSON</th>
-                                    <td><textarea name="options_json" id="abc_matrix_options" rows="5" class="large-text code">{"Sides":"Single","Ink":"Color"}</textarea><p class="description">Tip: define finishing options as keys here (e.g., {"Perf":"Yes","Foil":"Gold"}).</p></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">Turnaround</th>
-                                    <td><input type="text" name="turnaround" id="abc_matrix_turnaround" class="regular-text" placeholder="Standard"></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">Cost</th>
-                                    <td><input type="number" step="0.01" name="cost" id="abc_matrix_cost" class="small-text" required></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">Last Verified</th>
-                                    <td><input type="date" name="last_verified" id="abc_matrix_last_verified"></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">Source Note</th>
-                                    <td><textarea name="source_note" id="abc_matrix_source" rows="3" class="large-text"></textarea></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <?php submit_button('Save Matrix Row'); ?>
-                    </form>
-                </div>
-
-                <div class="abc-matrix-card">
-                    <h2>Matrix Search</h2>
-                    <form method="get" class="abc-matrix-filter">
-                        <input type="hidden" name="post_type" value="<?php echo esc_attr(ABC_CPT_ABC_Estimate::POST_TYPE); ?>">
-                        <input type="hidden" name="page" value="abc-price-matrix">
-                        <select name="template_id">
-                            <option value="">All Templates</option>
-                            <?php foreach ($templates as $template) : ?>
-                                <option value="<?php echo esc_attr($template->ID); ?>" <?php selected($filter_template, $template->ID); ?>><?php echo esc_html($template->post_title); ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                        <input type="text" name="vendor" placeholder="Vendor" value="<?php echo esc_attr($filter_vendor); ?>">
-                        <input type="text" name="s" placeholder="Options / notes search" value="<?php echo esc_attr($filter_search); ?>">
-                        <?php submit_button('Filter', 'secondary', '', false); ?>
-                    </form>
-
-                    <table class="widefat striped">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Template</th>
-                                <th>Vendor</th>
-                                <th>Qty</th>
-                                <th>Options</th>
-                                <th>Turnaround</th>
-                                <th>Cost</th>
-                                <th>Last Verified</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if ($rows) : ?>
-                                <?php foreach ($rows as $row) : ?>
-                                    <tr>
-                                        <td><?php echo esc_html($row['id']); ?></td>
-                                        <td><?php echo esc_html(get_the_title((int) $row['template_id'])); ?></td>
-                                        <td><?php echo esc_html($row['vendor']); ?></td>
-                                        <td><?php echo esc_html($row['qty_min'] . ($row['qty_max'] ? ' - ' . $row['qty_max'] : '+')); ?></td>
-                                        <td><code><?php echo esc_html($row['options_json']); ?></code></td>
-                                        <td><?php echo esc_html($row['turnaround']); ?></td>
-                                        <td><?php echo esc_html($row['cost']); ?></td>
-                                        <td><?php echo esc_html($row['last_verified']); ?></td>
-                                        <td>
-                                            <button class="button abc-matrix-edit"
-                                                data-id="<?php echo esc_attr($row['id']); ?>"
-                                                data-template="<?php echo esc_attr($row['template_id']); ?>"
-                                                data-vendor="<?php echo esc_attr($row['vendor']); ?>"
-                                                data-qty-min="<?php echo esc_attr($row['qty_min']); ?>"
-                                                data-qty-max="<?php echo esc_attr($row['qty_max']); ?>"
-                                                data-options="<?php echo esc_attr($row['options_json']); ?>"
-                                                data-turnaround="<?php echo esc_attr($row['turnaround']); ?>"
-                                                data-cost="<?php echo esc_attr($row['cost']); ?>"
-                                                data-last-verified="<?php echo esc_attr($row['last_verified']); ?>"
-                                                data-source-note="<?php echo esc_attr($row['source_note']); ?>"
-                                            >Edit</button>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php else : ?>
-                                <tr><td colspan="9">No rows found.</td></tr>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
+            <div class="abc-matrix-card" style="margin-top:12px;">
+                <h2>Current Base Rates (from Estimator Settings)</h2>
+                <ul>
+                    <li><strong>Hourly Labor:</strong> $<?php echo esc_html(number_format($hourly, 2)); ?> / hour ($<?php echo esc_html(number_format($hourly / 60, 4)); ?> per minute)</li>
+                    <li><strong>B/W Single:</strong> $<?php echo esc_html(number_format($bw_single, 4)); ?> | <strong>B/W Double:</strong> $<?php echo esc_html(number_format($bw_double, 4)); ?></li>
+                    <li><strong>Color Single:</strong> $<?php echo esc_html(number_format($color_single, 4)); ?> | <strong>Color Double:</strong> $<?php echo esc_html(number_format($color_double, 4)); ?></li>
+                </ul>
             </div>
+
+            <form method="post" style="margin-top:16px;">
+                <?php wp_nonce_field('abc_price_matrix_v2_action', 'abc_price_matrix_v2_nonce'); ?>
+
+                <h2>Category Profiles</h2>
+                <table class="widefat striped">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Setup Minutes</th>
+                            <th>Markup %</th>
+                            <th>Minimum Order ($)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($categories as $key => $label) : ?>
+                            <?php $row = isset($profiles[$key]) && is_array($profiles[$key]) ? $profiles[$key] : []; ?>
+                            <tr>
+                                <td><strong><?php echo esc_html($label); ?></strong></td>
+                                <td><input type="number" name="<?php echo esc_attr($key . '_setup_minutes'); ?>" value="<?php echo esc_attr((string) ($row['setup_minutes'] ?? 0)); ?>" class="small-text"></td>
+                                <td><input type="number" step="0.01" name="<?php echo esc_attr($key . '_markup_percent'); ?>" value="<?php echo esc_attr((string) ($row['markup_percent'] ?? 0)); ?>" class="small-text"></td>
+                                <td><input type="number" step="0.01" name="<?php echo esc_attr($key . '_min_order'); ?>" value="<?php echo esc_attr((string) ($row['min_order'] ?? 0)); ?>" class="small-text"></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+
+                <h2 style="margin-top:18px;">Finishing Add-on Costs</h2>
+                <table class="form-table">
+                    <tbody>
+                        <tr>
+                            <th>Perf</th><td><input type="number" step="0.01" name="finish_perf" value="<?php echo esc_attr((string) ($finishing['perf'] ?? 0)); ?>" class="small-text"></td>
+                            <th>Foil</th><td><input type="number" step="0.01" name="finish_foil" value="<?php echo esc_attr((string) ($finishing['foil'] ?? 0)); ?>" class="small-text"></td>
+                            <th>Fold</th><td><input type="number" step="0.01" name="finish_fold" value="<?php echo esc_attr((string) ($finishing['fold'] ?? 0)); ?>" class="small-text"></td>
+                        </tr>
+                        <tr>
+                            <th>Score</th><td><input type="number" step="0.01" name="finish_score" value="<?php echo esc_attr((string) ($finishing['score'] ?? 0)); ?>" class="small-text"></td>
+                            <th>Pad</th><td><input type="number" step="0.01" name="finish_pad" value="<?php echo esc_attr((string) ($finishing['pad'] ?? 0)); ?>" class="small-text"></td>
+                            <th>NCR</th><td><input type="number" step="0.01" name="finish_ncr" value="<?php echo esc_attr((string) ($finishing['ncr'] ?? 0)); ?>" class="small-text"></td>
+                        </tr>
+                        <tr>
+                            <th>Spiral</th><td><input type="number" step="0.01" name="finish_spiral" value="<?php echo esc_attr((string) ($finishing['spiral'] ?? 0)); ?>" class="small-text"></td>
+                            <td colspan="4"></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <?php submit_button('Save Click-Rate Matrix'); ?>
+            </form>
         </div>
         <?php
     }

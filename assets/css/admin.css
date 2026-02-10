@@ -261,3 +261,38 @@
 }
 .abc-jacket-hot label input[type="checkbox"] { margin: 0; }
 .abc-jacket-year label { font-size: 10px; }
+
+/* Scratch reset for job jacket look */
+.abc-jacket-sheet {
+    background: #f0f0f1;
+    border: 1px solid #d0d0d0;
+    padding: 8px;
+}
+.abc-jacket-row {
+    grid-template-columns: 115px 1fr;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+.abc-jacket-checks {
+    gap: 8px 12px;
+    margin-bottom: 8px;
+}
+.abc-jacket-checks label {
+    font-size: 12px;
+    text-transform: none;
+}
+.abc-jacket-row label,
+.abc-jacket-date label,
+.abc-jacket-invoice label {
+    font-size: 12px;
+    text-transform: uppercase;
+}
+.abc-jacket-year-display {
+    font-size: 52px;
+    border: 1px solid #111;
+    color: #111;
+}
+.abc-jacket-hot label {
+    font-size: 42px;
+    line-height: 1;
+}

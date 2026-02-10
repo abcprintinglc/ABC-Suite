@@ -26,6 +26,14 @@ class ABC_Estimator_Settings {
             update_option('abc_contract_color_click_cost', is_numeric($_POST['abc_contract_color_click_cost'] ?? null) ? (string) (float) $_POST['abc_contract_color_click_cost'] : '0');
             update_option('abc_target_margin_pct', is_numeric($_POST['abc_target_margin_pct'] ?? null) ? (string) (float) $_POST['abc_target_margin_pct'] : '40');
 
+            if (isset($_POST['abc_duplo_trim_presets'])) {
+                $raw_duplo = wp_unslash($_POST['abc_duplo_trim_presets']);
+                $decoded_duplo = json_decode((string) $raw_duplo, true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded_duplo)) {
+                    update_option('abc_duplo_trim_presets', wp_json_encode($decoded_duplo, JSON_PRETTY_PRINT));
+                }
+            }
+
             $lease = (float) get_option('abc_lease_monthly_cost', '0');
             $service = (float) get_option('abc_service_monthly_cost', '0');
             $expected_bw = (int) get_option('abc_expected_bw_clicks', 0);
@@ -65,6 +73,15 @@ class ABC_Estimator_Settings {
         $contract_bw = (string) get_option('abc_contract_bw_click_cost', '0');
         $contract_color = (string) get_option('abc_contract_color_click_cost', '0');
         $target_margin_pct = (string) get_option('abc_target_margin_pct', '40');
+        $duplo_presets = (string) get_option('abc_duplo_trim_presets', '');
+        if ($duplo_presets === '') {
+            $duplo_presets = wp_json_encode([
+                'default' => [
+                    'setup_minutes' => 8,
+                    'cost' => 12.50,
+                ],
+            ], JSON_PRETTY_PRINT);
+        }
         ?>
         <div class="wrap">
             <h1 class="wp-heading-inline">Estimator Settings</h1>
@@ -127,6 +144,10 @@ class ABC_Estimator_Settings {
                         </tr>
                     </tbody>
                 </table>
+
+                <h2>Duplo Trim Presets</h2>
+                <p class="description">Paste Duplo trim settings JSON (from All 2-10-26.pdf). Keys can be trim profile names; each value should include <code>setup_minutes</code> and <code>cost</code>.</p>
+                <textarea name="abc_duplo_trim_presets" rows="10" class="large-text code"><?php echo esc_textarea($duplo_presets); ?></textarea>
 
                 <h2>Integrations</h2>
                 <table class="form-table">

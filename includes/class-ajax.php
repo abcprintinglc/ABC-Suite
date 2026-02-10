@@ -288,21 +288,82 @@ class ABC_Ajax {
         $turnaround = isset($_POST['turnaround']) ? sanitize_text_field(wp_unslash($_POST['turnaround'])) : '';
         $options_json = isset($_POST['options_json']) ? wp_unslash($_POST['options_json']) : '';
 
-        if (!$template_id || $vendor === '' || $qty <= 0) {
+        if (!$template_id || $qty <= 0) {
             wp_send_json_error(['message' => 'Missing required data.'], 400);
         }
 
         $options = ABC_Price_Matrix::parse_options_json((string) $options_json);
-        $row = ABC_Price_Matrix::lookup($template_id, $vendor, $qty, $options, $turnaround);
-        if (!$row) {
-            wp_send_json_error(['message' => 'No matrix match.'], 404);
+        $row = null;
+        if ($vendor !== '') {
+            $row = ABC_Price_Matrix::lookup($template_id, $vendor, $qty, $options, $turnaround);
         }
 
+        if ($row) {
+            wp_send_json_success([
+                'id' => $row['id'],
+                'cost' => $row['cost'],
+                'last_verified' => $row['last_verified'],
+                'options_json' => $row['options_json'],
+            ]);
+        }
+
+        $template_category = (string) get_post_meta($template_id, 'abc_template_category', true);
+        $profiles = get_option('abc_click_price_profiles', []);
+        $profile_key = strtolower(str_replace(' ', '_', trim($template_category)));
+        $profile = isset($profiles[$profile_key]) && is_array($profiles[$profile_key]) ? $profiles[$profile_key] : [
+            'setup_minutes' => 10,
+            'markup_percent' => 0,
+            'min_order' => 0,
+        ];
+
+        $hourly_rate = (float) get_option('abc_hourly_rate', '20');
+        $minute_rate = $hourly_rate / 60;
+
+        $sides = strtolower((string) ($options['Sides'] ?? $options['sides'] ?? 'single'));
+        $ink = strtolower((string) ($options['Ink'] ?? $options['ink'] ?? 'bw'));
+        $is_color = strpos($ink, 'color') !== false;
+        $is_double = strpos($sides, 'double') !== false;
+
+        if ($is_color && $is_double) {
+            $click_rate = (float) get_option('abc_click_color_double', '0.16');
+        } elseif ($is_color) {
+            $click_rate = (float) get_option('abc_click_color_single', '0.08');
+        } elseif ($is_double) {
+            $click_rate = (float) get_option('abc_click_bw_double', '0.04');
+        } else {
+            $click_rate = (float) get_option('abc_click_bw_single', '0.02');
+        }
+
+        $base_cost = ((float) $qty * $click_rate) + ((float) ($profile['setup_minutes'] ?? 0) * $minute_rate);
+
+        $duplo_json = (string) get_option('abc_duplo_trim_presets', '');
+        $duplo_presets = json_decode($duplo_json, true);
+        if (!is_array($duplo_presets)) {
+            $duplo_presets = [];
+        }
+        $duplo_key = (string) ($options['Duplo'] ?? $options['duplo'] ?? $options['Trim'] ?? $options['trim'] ?? '');
+        if ($duplo_key !== '' && isset($duplo_presets[$duplo_key]) && is_array($duplo_presets[$duplo_key])) {
+            $duplo_setup = isset($duplo_presets[$duplo_key]['setup_minutes']) ? (float) $duplo_presets[$duplo_key]['setup_minutes'] : 0.0;
+            $duplo_cost = isset($duplo_presets[$duplo_key]['cost']) ? (float) $duplo_presets[$duplo_key]['cost'] : 0.0;
+            $base_cost += ($duplo_setup * $minute_rate) + $duplo_cost;
+        }
+        $finishing_costs = get_option('abc_click_finishing_costs', []);
+        $finishing_total = 0.0;
+        foreach (['perf','foil','fold','score','pad','ncr','spiral'] as $finish_key) {
+            if (!empty($options[$finish_key]) || !empty($options[strtoupper($finish_key)])) {
+                $finishing_total += (float) ($finishing_costs[$finish_key] ?? 0);
+            }
+        }
+
+        $cost = $base_cost + $finishing_total;
+        $cost = max($cost, (float) ($profile['min_order'] ?? 0));
+
         wp_send_json_success([
-            'id' => $row['id'],
-            'cost' => $row['cost'],
-            'last_verified' => $row['last_verified'],
-            'options_json' => $row['options_json'],
+            'id' => 0,
+            'cost' => number_format($cost, 2, '.', ''),
+            'last_verified' => current_time('Y-m-d'),
+            'options_json' => wp_json_encode($options),
+            'source' => 'click_rate_model',
         ]);
     }
 
