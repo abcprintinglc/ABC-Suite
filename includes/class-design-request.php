@@ -134,6 +134,17 @@ class ABC_Design_Request {
                         </select>
                     </td>
                 </tr>
+                                <tr>
+                    <th scope="row"><label for="abc_design_estimate_id">Linked Estimate Entry</label></th>
+                    <td>
+                        <select name="abc_design_estimate_id" id="abc_design_estimate_id">
+                            <option value="">Select estimate</option>
+                            <?php foreach ($estimates as $estimate) : ?>
+                                <option value="<?php echo esc_attr((string) $estimate->ID); ?>" <?php selected($estimate_id, (string) $estimate->ID); ?>>#<?php echo esc_html((string) get_post_meta($estimate->ID, 'abc_invoice_number', true)); ?> — <?php echo esc_html($estimate->post_title); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </td>
+                </tr>
                 <tr>
                     <th scope="row"><label for="abc_design_employee_id">Client (Customer User)</label></th>
                     <td>
