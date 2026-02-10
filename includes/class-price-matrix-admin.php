@@ -21,6 +21,11 @@ class ABC_Price_Matrix_Admin {
                 'source_note' => isset($_POST['source_note']) ? sanitize_textarea_field(wp_unslash($_POST['source_note'])) : '',
             ];
 
+            $matrix_category = isset($_POST['matrix_category']) ? sanitize_text_field(wp_unslash($_POST['matrix_category'])) : '';
+            if ($matrix_category !== '' && empty($payload['options']['Category'])) {
+                $payload['options']['Category'] = $matrix_category;
+            }
+
             if ($payload['template_id'] && $payload['vendor'] !== '' && $payload['qty_min'] > 0) {
                 ABC_Price_Matrix::upsert($payload);
                 $message = 'Matrix row saved.';
@@ -66,6 +71,7 @@ class ABC_Price_Matrix_Admin {
         ?>
         <div class="wrap">
             <h1 class="wp-heading-inline">Price Matrix</h1>
+            <p class="description">Use categories + option JSON to keep pricing clear for Commercial Printing, Raised/Specialty, Banners, Apparel, and Booklets. Labor rate + click-rate defaults are in Estimator Settings.</p>
             <?php if ($message !== '') : ?>
                 <div class="notice notice-info is-dismissible"><p><?php echo esc_html($message); ?></p></div>
             <?php endif; ?>
@@ -90,6 +96,19 @@ class ABC_Price_Matrix_Admin {
                                     </td>
                                 </tr>
                                 <tr>
+                                    <th scope="row">Category</th>
+                                    <td>
+                                        <select name="matrix_category" id="abc_matrix_category">
+                                            <option value="">Select category</option>
+                                            <option value="Commercial Printing">Commercial Printing</option>
+                                            <option value="Raised Printing">Raised Printing</option>
+                                            <option value="Banners">Banners</option>
+                                            <option value="Apparel">Apparel</option>
+                                            <option value="Booklets">Booklets</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
                                     <th scope="row">Vendor</th>
                                     <td><input type="text" name="vendor" id="abc_matrix_vendor" class="regular-text" required></td>
                                 </tr>
@@ -103,7 +122,7 @@ class ABC_Price_Matrix_Admin {
                                 </tr>
                                 <tr>
                                     <th scope="row">Options JSON</th>
-                                    <td><textarea name="options_json" id="abc_matrix_options" rows="5" class="large-text code">{}</textarea></td>
+                                    <td><textarea name="options_json" id="abc_matrix_options" rows="5" class="large-text code">{"Sides":"Single","Ink":"Color"}</textarea><p class="description">Tip: define finishing options as keys here (e.g., {"Perf":"Yes","Foil":"Gold"}).</p></td>
                                 </tr>
                                 <tr>
                                     <th scope="row">Turnaround</th>
