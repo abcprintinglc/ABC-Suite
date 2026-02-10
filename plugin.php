@@ -16,6 +16,7 @@ define('ABC_SUITE_URL', plugin_dir_url(__FILE__));
 
 require_once ABC_SUITE_PATH . 'includes/class-abc-suite.php';
 require_once ABC_SUITE_PATH . 'includes/class-price-matrix.php';
+require_once ABC_SUITE_PATH . 'includes/class-user-roles.php';
 
 function abc_suite_boot(): void {
     $suite = new ABC_Suite();
@@ -26,6 +27,8 @@ add_action('plugins_loaded', 'abc_suite_boot');
 
 function abc_suite_activate(): void {
     ABC_Price_Matrix::create_table();
+    ABC_User_Roles::ensure_roles_static();
+    update_option('default_role', 'customer');
 }
 
 register_activation_hook(__FILE__, 'abc_suite_activate');

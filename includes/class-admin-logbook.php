@@ -8,15 +8,6 @@ class ABC_Admin_Logbook {
     public function register_menu(): void {
         add_submenu_page(
             'edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE,
-            'Log Book',
-            'Log Book',
-            'edit_posts',
-            'abc-log-book',
-            [$this, 'render_page']
-        );
-
-        add_submenu_page(
-            'edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE,
             'Product Library',
             'Product Library',
             'edit_posts',
@@ -69,8 +60,8 @@ class ABC_Admin_Logbook {
 
         add_submenu_page(
             'edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE,
-            'Import / Data Tools',
-            'Import / Data Tools',
+            'Data Tools',
+            'Data Tools',
             'manage_options',
             'abc-data-tools',
             [new ABC_CSV_Tools(), 'render_page']

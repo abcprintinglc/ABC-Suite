@@ -12,6 +12,18 @@
       .replace(/'/g, '&#039;');
   }
 
+  function stageSelect(row) {
+    var current = (row.stage || 'estimate').toString().toLowerCase();
+    var stages = ['estimate', 'pending', 'production', 'completed'];
+    var html = '<select class="abc-frontend-status" data-id="' + row.id + '">';
+    stages.forEach(function (stage) {
+      var selected = stage === current ? 'selected' : '';
+      html += '<option value="' + stage + '" ' + selected + '>' + stage.charAt(0).toUpperCase() + stage.slice(1) + '</option>';
+    });
+    html += '</select>';
+    return html;
+  }
+
   function renderRows(rows) {
     var $tbody = $('#abc-log-results');
     var $noResults = $('#abc-no-results');
@@ -28,10 +40,7 @@
     if ($noResults.length) $noResults.hide();
 
     rows.forEach(function (row) {
-      var stage = (row.stage || 'estimate').toString();
       var urgency = (row.urgency || 'normal').toString();
-
-      var statusClass = 'status-' + stage;
       var trClass = '';
       if (urgency === 'urgent') trClass = 'abc-row-urgent';
       if (urgency === 'warning') trClass = 'abc-row-warning';
@@ -42,11 +51,10 @@
       var isRush = !!row.is_rush;
 
       var rushHtml = isRush ? ' <span class="abc-rush">(RUSH)</span>' : '';
-      var stageHtml = '<span class="abc-pill ' + escapeHtml(statusClass) + '">' + escapeHtml(stage) + '</span>';
 
       var actions = '';
       if (row.edit_url) {
-        actions += '<a href="' + escapeHtml(row.edit_url) + '" class="button button-small" target="_blank" rel="noopener">Edit</a> ';
+        actions += '<a href="' + escapeHtml(row.edit_url) + '" class="button button-small" target="_blank" rel="noopener">Job Jacket</a> ';
       }
       if (row.print_url) {
         actions += '<a href="' + escapeHtml(row.print_url) + '" class="button button-small" target="_blank" rel="noopener">Print</a>';
@@ -56,7 +64,7 @@
         '<tr class="' + escapeHtml(trClass) + '">' +
           '<td><strong>' + invoice + '</strong></td>' +
           '<td>' + title + '</td>' +
-          '<td>' + stageHtml + '</td>' +
+          '<td>' + stageSelect(row) + '</td>' +
           '<td>' + due + rushHtml + '</td>' +
           '<td>' + actions + '</td>' +
         '</tr>';
@@ -65,14 +73,16 @@
     });
   }
 
-  function fetchResults(term) {
+  function fetchResults() {
     var $spinner = $('#abc-spinner');
     if ($spinner.length) $spinner.show();
 
     $.post(ABCSuiteLogbook.ajaxUrl, {
       action: 'abc_search_estimates',
       nonce: ABCSuiteLogbook.nonce,
-      term: term || ''
+      term: $('#abc-frontend-search').val() || '',
+      client: $('#abc-frontend-client').val() || '',
+      year: $('#abc-frontend-year').val() || ''
     })
       .done(function (res) {
         if ($spinner.length) $spinner.hide();
@@ -88,6 +98,46 @@
       });
   }
 
+  function loadFilters() {
+    $.get(ABCSuiteLogbook.ajaxUrl, {
+      action: 'abc_get_log_filters',
+      nonce: ABCSuiteLogbook.nonce
+    }).done(function (res) {
+      if (!res || !res.success || !res.data) return;
+      var $client = $('#abc-frontend-client');
+      var $year = $('#abc-frontend-year');
+      (res.data.clients || []).forEach(function (name) {
+        $client.append('<option value="' + escapeHtml(name) + '">' + escapeHtml(name) + '</option>');
+      });
+      (res.data.years || []).forEach(function (year) {
+        $year.append('<option value="' + escapeHtml(year) + '">' + escapeHtml(year) + '</option>');
+      });
+    });
+  }
+
+  function updateStatus(postId, status, $select) {
+    if ($select && $select.length) {
+      $select.prop('disabled', true);
+    }
+
+    $.post(ABCSuiteLogbook.ajaxUrl, {
+      action: 'abc_update_status',
+      nonce: ABCSuiteLogbook.nonce,
+      id: postId,
+      status: status
+    }).done(function (res) {
+      if (!res || !res.success) {
+        alert('Unable to update status.');
+      }
+    }).fail(function () {
+      alert('Unable to update status.');
+    }).always(function () {
+      if ($select && $select.length) {
+        $select.prop('disabled', false);
+      }
+    });
+  }
+
   $(function () {
     var $input = $('#abc-frontend-search');
     if (!$input.length) return;
@@ -96,12 +146,17 @@
 
     $input.on('input', function () {
       clearTimeout(delayTimer);
-      var term = $(this).val();
-      delayTimer = setTimeout(function () {
-        fetchResults(term);
-      }, 300);
+      delayTimer = setTimeout(fetchResults, 300);
     });
 
-    fetchResults('');
+    $('#abc-frontend-client, #abc-frontend-year').on('change', fetchResults);
+
+    $(document).on('change', '.abc-frontend-status', function () {
+      var $select = $(this);
+      updateStatus($select.data('id'), $select.val(), $select);
+    });
+
+    loadFilters();
+    fetchResults();
   });
 })(jQuery);

@@ -406,9 +406,6 @@
 
       $btn.prop('disabled', true).text('Creating...');
 
-      if (!templateId || !vendor || !qty) return;
-
-      $costStatus.text('Looking up cost...');
       $.post(ABCSuiteLogbook.ajaxUrl, {
         action: 'abc_create_square_invoice',
         nonce: ABCSuiteLogbook.nonce,
@@ -430,24 +427,6 @@
       }).always(function () {
         $btn.prop('disabled', false).text('Create Square Invoice');
       });
-    }
-
-    $select.on('change', function () {
-      var $selected = $select.find('option:selected');
-      var schemaText = $selected.data('schema') || '{}';
-      var vendorDefault = $selected.data('vendor') || '';
-      var markupType = $selected.data('markup-type') || 'percent';
-      var markupValue = $selected.data('markup-value') || 0;
-      var wcProductId = $selected.data('wc-product-id') || '';
-      var label = $selected.text() || '';
-      buildOptions($optionsContainer, parseSchema(schemaText));
-      $vendor.val(vendorDefault);
-      $wcProduct.val(wcProductId);
-      $customProduct.val(label || '');
-      $markupType.val(markupType);
-      $markupValue.val(markupValue);
-      refreshSellPrice();
-      lookupCost();
     });
   }
 
@@ -511,6 +490,19 @@
 
       fetchResults('');
     }
+
+    $('select[name="abc_client_user_id"]').on('change', function () {
+      var org = $(this).find(':selected').data('parent') || '';
+      $('input[name="abc_client_parent_id"]').val(org);
+    });
+
+    $('#abc_design_employee_id').on('change', function () {
+      var org = $(this).find(':selected').data('org') || '';
+      if ($('#abc_design_org_id').length && org) {
+        $('#abc_design_org_id').val(org);
+      }
+    });
+
     initProductLibrary();
     initMatrixEditor();
     initSquareInvoice();

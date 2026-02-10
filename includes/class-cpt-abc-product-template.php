@@ -68,7 +68,7 @@ class ABC_CPT_ABC_Product_Template {
     public function add_meta_boxes(): void {
         add_meta_box(
             'abc_product_template_details',
-            'Template Details',
+            'Template Details (Quick Add Ready)',
             [$this, 'render_meta_box'],
             self::POST_TYPE,
             'normal',
@@ -127,7 +127,15 @@ class ABC_CPT_ABC_Product_Template {
             <tbody>
                 <tr>
                     <th scope="row"><label for="abc_template_category">Category</label></th>
-                    <td><input type="text" name="abc_template_category" id="abc_template_category" value="<?php echo esc_attr($category); ?>" class="regular-text"></td>
+                    <td>
+                        <select name="abc_template_category" id="abc_template_category">
+                            <?php $categories = ['Commercial Printing', 'Raised Printing', 'Banners', 'Apparel', 'Booklets', 'Other']; ?>
+                            <?php foreach ($categories as $cat) : ?>
+                                <option value="<?php echo esc_attr($cat); ?>" <?php selected($category, $cat); ?>><?php echo esc_html($cat); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <p class="description">Use consistent categories so Product Library is searchable and easier for quick-add.</p>
+                    </td>
                 </tr>
                 <tr>
                     <th scope="row"><label for="abc_template_vendor_default">Default Vendor</label></th>

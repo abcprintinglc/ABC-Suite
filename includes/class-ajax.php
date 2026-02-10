@@ -4,6 +4,7 @@ class ABC_Ajax {
     public function register(): void {
         add_action('wp_ajax_abc_search_estimates', [$this, 'search_estimates']);
         add_action('wp_ajax_nopriv_abc_search_estimates', [$this, 'search_estimates']);
+        add_action('wp_ajax_abc_get_log_filters', [$this, 'get_log_filters']);
         add_action('wp_ajax_abc_update_status', [$this, 'update_status']);
         add_action('wp_ajax_abc_get_templates', [$this, 'get_templates']);
         add_action('wp_ajax_abc_get_template', [$this, 'get_template']);
@@ -21,6 +22,8 @@ class ABC_Ajax {
         }
 
         $term = isset($_POST['term']) ? sanitize_text_field(wp_unslash($_POST['term'])) : '';
+        $client = isset($_POST['client']) ? sanitize_text_field(wp_unslash($_POST['client'])) : '';
+        $year = isset($_POST['year']) ? sanitize_text_field(wp_unslash($_POST['year'])) : '';
         $args = [
             'post_type' => ABC_CPT_ABC_Estimate::POST_TYPE,
             'posts_per_page' => 50,
@@ -29,9 +32,11 @@ class ABC_Ajax {
             'order' => 'DESC',
         ];
 
+        $meta_filters = [];
+
         if ($term !== '') {
             $args['s'] = $term;
-            $args['meta_query'] = [
+            $meta_filters[] = [
                 'relation' => 'OR',
                 [
                     'key' => 'abc_invoice_number',
@@ -54,6 +59,28 @@ class ABC_Ajax {
                     'compare' => 'LIKE',
                 ],
             ];
+        }
+
+        if ($client !== '') {
+            $meta_filters[] = [
+                'key' => 'abc_client_name',
+                'value' => $client,
+                'compare' => '=',
+            ];
+        }
+
+        if (!empty($meta_filters)) {
+            if (count($meta_filters) > 1) {
+                $args['meta_query'] = array_merge(['relation' => 'AND'], $meta_filters);
+            } else {
+                $args['meta_query'] = $meta_filters;
+            }
+        }
+
+        if ($year !== '') {
+            $args['date_query'] = [[
+                'year' => (int) $year,
+            ]];
         }
 
         $results = new WP_Query($args);
@@ -88,13 +115,54 @@ class ABC_Ajax {
         wp_send_json_success($items);
     }
 
+    public function get_log_filters(): void {
+        $nonce = isset($_GET['nonce']) ? sanitize_text_field(wp_unslash($_GET['nonce'])) : '';
+        if (!wp_verify_nonce($nonce, 'abc_log_book_nonce')) {
+            wp_send_json_error(['message' => 'Invalid nonce.'], 403);
+        }
+
+        if (!current_user_can('edit_posts')) {
+            wp_send_json_error(['message' => 'Unauthorized.'], 403);
+        }
+
+        $posts = get_posts([
+            'post_type' => ABC_CPT_ABC_Estimate::POST_TYPE,
+            'posts_per_page' => 500,
+            'post_status' => 'any',
+            'orderby' => 'date',
+            'order' => 'DESC',
+        ]);
+
+        $clients = [];
+        $years = [];
+
+        foreach ($posts as $post) {
+            $client = trim((string) get_post_meta($post->ID, 'abc_client_name', true));
+            if ($client !== '') {
+                $clients[$client] = $client;
+            }
+            $year = get_the_date('Y', $post);
+            if ($year !== '') {
+                $years[$year] = $year;
+            }
+        }
+
+        natcasesort($clients);
+        rsort($years, SORT_NUMERIC);
+
+        wp_send_json_success([
+            'clients' => array_values($clients),
+            'years' => array_values($years),
+        ]);
+    }
+
     public function update_status(): void {
         $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
         if (!wp_verify_nonce($nonce, 'abc_log_book_nonce')) {
             wp_send_json_error(['message' => 'Invalid nonce.'], 403);
         }
 
-        if (!current_user_can('manage_options')) {
+        if (!current_user_can('edit_posts')) {
             wp_send_json_error(['message' => 'Unauthorized.'], 403);
         }
 

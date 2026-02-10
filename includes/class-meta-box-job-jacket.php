@@ -43,6 +43,8 @@ class ABC_Meta_Box_Job_Jacket {
         }
         $client_name = (string) get_post_meta($post->ID, 'abc_client_name', true);
         $client_email = (string) get_post_meta($post->ID, 'abc_client_email', true);
+        $client_user_id = (string) get_post_meta($post->ID, 'abc_client_user_id', true);
+        $client_parent_id = (string) get_post_meta($post->ID, 'abc_client_parent_id', true);
         $job_description = (string) get_post_meta($post->ID, 'abc_job_description', true);
         $promised_date = (string) get_post_meta($post->ID, 'abc_promised_date', true);
         $ordered_date = (string) get_post_meta($post->ID, 'abc_ordered_date', true);
@@ -105,6 +107,13 @@ class ABC_Meta_Box_Job_Jacket {
         if ($commission_pct === '') {
             $commission_pct = '0';
         }
+        $customer_users = get_users([
+            'role__in' => ['customer'],
+            'number' => 500,
+            'orderby' => 'display_name',
+            'order' => 'ASC',
+        ]);
+
         $design_requests = get_posts([
             'post_type' => ABC_Design_Request::POST_TYPE,
             'posts_per_page' => 200,
@@ -156,6 +165,18 @@ class ABC_Meta_Box_Job_Jacket {
                 <div class="abc-jacket-stack">
                     <input type="text" name="abc_job_description" value="<?php echo esc_attr($job_description); ?>" class="regular-text">
                     <input type="email" name="abc_client_email" value="<?php echo esc_attr($client_email); ?>" placeholder="Client Email">
+                    <div class="abc-jacket-checks">
+                        <label style="min-width:90px;">Client</label>
+                        <select name="abc_client_user_id">
+                            <option value="">Select customer</option>
+                            <?php foreach ($customer_users as $customer_user) : ?>
+                                <?php $org_role = (string) get_user_meta($customer_user->ID, 'abc_b2b_org_role', true); ?>
+                                <?php $org_id = (string) get_user_meta($customer_user->ID, 'abc_b2b_org_id', true); ?>
+                                <option value="<?php echo esc_attr((string) $customer_user->ID); ?>" data-parent="<?php echo esc_attr($org_id !== '' ? $org_id : ''); ?>" <?php selected($client_user_id, (string) $customer_user->ID); ?>><?php echo esc_html($customer_user->display_name . ($org_role === 'admin' ? ' (Store Manager)' : ' (Employee)')); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <input type="hidden" name="abc_client_parent_id" value="<?php echo esc_attr($client_parent_id); ?>">
+                    </div>
                 </div>
             </div>
 
@@ -486,6 +507,8 @@ class ABC_Meta_Box_Job_Jacket {
             'abc_estimate_data',
             'abc_client_name',
             'abc_client_email',
+            'abc_client_user_id',
+            'abc_client_parent_id',
             'abc_job_description',
             'abc_promised_date',
             'abc_ordered_date',
