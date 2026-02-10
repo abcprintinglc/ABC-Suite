@@ -16,7 +16,8 @@ class ABC_CSV_Tools {
         }
         ?>
         <div class="wrap">
-            <h1>Import / Data Tools</h1>
+            <h1>Data Tools</h1>
+            <p class="description">Bulk delete runs in batches to prevent timeout errors on large datasets.</p>
 
             <div class="card" style="max-width: 900px; padding: 16px 20px; margin-top: 12px;">
                 <h2 style="margin-top:0;">Accepted CSV formats</h2>

@@ -48,7 +48,7 @@ class ABC_Estimate_Learning_Log {
         ?>
         <div class="wrap">
             <h1 class="wp-heading-inline">Estimate Learning Log</h1>
-            <p class="description">Items without templates (custom product names) to promote into templates.</p>
+            <p class="description">This report scans saved estimates for custom product names that are not tied to a Product Library template. Use it to identify repeat custom requests and promote them into templates/matrix pricing.</p>
 
             <table class="widefat striped" style="margin-top:12px;">
                 <thead>

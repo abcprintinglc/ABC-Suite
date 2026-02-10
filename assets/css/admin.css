@@ -212,3 +212,27 @@
 .abc-option-list li {
     margin-bottom: 2px;
 }
+
+/* Job jacket sheet-style refinements */
+.abc-jacket-sheet {
+    background: #f8f8f8;
+    border: 1px solid #c9c9c9;
+    padding: 10px;
+}
+.abc-jacket-sheet label {
+    font-size: 12px;
+    text-transform: uppercase;
+}
+.abc-jacket-sheet input[type="text"],
+.abc-jacket-sheet input[type="email"],
+.abc-jacket-sheet input[type="number"],
+.abc-jacket-sheet input[type="date"],
+.abc-jacket-sheet select,
+.abc-jacket-sheet textarea {
+    border: 1px solid #9ca3af;
+    border-radius: 2px;
+    min-height: 30px;
+}
+.abc-jacket-checks label {
+    font-size: 11px;
+}

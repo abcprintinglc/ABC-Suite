@@ -115,6 +115,7 @@ class ABC_Design_Request {
         $employee_approved = (string) get_post_meta($post->ID, 'abc_design_employee_approved', true);
         $admin_approved = (string) get_post_meta($post->ID, 'abc_design_admin_approved', true);
         $web_downloadable = (string) get_post_meta($post->ID, 'abc_design_web_downloadable', true);
+        $estimate_id = (string) get_post_meta($post->ID, 'abc_design_estimate_id', true);
 
         $current_org_id = abc_b2b_designer_current_user_org_id();
         if ($org_id === '' && $current_org_id) {
@@ -130,26 +131,52 @@ class ABC_Design_Request {
                 'fields' => ['ID', 'display_name'],
             ]);
         }
+        $estimates = get_posts([
+            'post_type' => ABC_CPT_ABC_Estimate::POST_TYPE,
+            'posts_per_page' => 200,
+            'post_status' => 'any',
+            'orderby' => 'date',
+            'order' => 'DESC',
+        ]);
+        $customer_users = get_users([
+            'role__in' => ['customer'],
+            'number' => 300,
+            'orderby' => 'display_name',
+            'order' => 'ASC',
+        ]);
         ?>
         <table class="form-table">
             <tbody>
                 <tr>
-                    <th scope="row"><label for="abc_design_org_id">Organization ID</label></th>
+                    <th scope="row"><label for="abc_design_org_id">Client Organization</label></th>
                     <td><input type="text" name="abc_design_org_id" id="abc_design_org_id" value="<?php echo esc_attr($org_id); ?>" class="small-text"></td>
                 </tr>
-                <tr>
-                    <th scope="row"><label for="abc_design_employee_id">Employee</label></th>
+                                <tr>
+                    <th scope="row"><label for="abc_design_estimate_id">Linked Estimate Entry</label></th>
                     <td>
-                        <select name="abc_design_employee_id" id="abc_design_employee_id">
-                            <option value="">Select employee</option>
-                            <?php foreach ($org_users as $user) : ?>
-                                <option value="<?php echo esc_attr($user->ID); ?>" <?php selected($employee_id, (string) $user->ID); ?>><?php echo esc_html($user->display_name); ?></option>
+                        <select name="abc_design_estimate_id" id="abc_design_estimate_id">
+                            <option value="">Select estimate</option>
+                            <?php foreach ($estimates as $estimate) : ?>
+                                <option value="<?php echo esc_attr((string) $estimate->ID); ?>" <?php selected($estimate_id, (string) $estimate->ID); ?>>#<?php echo esc_html((string) get_post_meta($estimate->ID, 'abc_invoice_number', true)); ?> — <?php echo esc_html($estimate->post_title); ?></option>
                             <?php endforeach; ?>
                         </select>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="abc_design_admin_id">Org Admin</label></th>
+                    <th scope="row"><label for="abc_design_employee_id">Client</label></th>
+                    <td>
+                        <select name="abc_design_employee_id" id="abc_design_employee_id">
+                            <option value="">Select client</option>
+                            <?php foreach ($customer_users as $user) : ?>
+                                <?php $u_org = (string) get_user_meta($user->ID, 'abc_b2b_org_id', true); ?>
+                                <option value="<?php echo esc_attr((string) $user->ID); ?>" data-org="<?php echo esc_attr($u_org); ?>" <?php selected($employee_id, (string) $user->ID); ?>><?php echo esc_html($user->display_name); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <p class="description">Client is linked to existing WordPress customer users for approvals.</p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="abc_design_admin_id">Store Manager</label></th>
                     <td>
                         <select name="abc_design_admin_id" id="abc_design_admin_id">
                             <option value="">Select admin</option>
@@ -221,6 +248,17 @@ class ABC_Design_Request {
 
         if (!current_user_can('edit_post', $post_id)) {
             return;
+        }
+
+
+        if (isset($_POST['abc_design_employee_id'])) {
+            $employee_id = absint(wp_unslash($_POST['abc_design_employee_id']));
+            if ($employee_id > 0) {
+                $linked_org_id = (int) get_user_meta($employee_id, 'abc_b2b_org_id', true);
+                if ($linked_org_id > 0) {
+                    $_POST['abc_design_org_id'] = (string) $linked_org_id;
+                }
+            }
         }
 
         $fields = [

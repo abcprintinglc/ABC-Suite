@@ -27,6 +27,7 @@ class ABC_Suite {
         require_once ABC_SUITE_PATH . 'includes/class-estimate-learning-log.php';
         require_once ABC_SUITE_PATH . 'includes/class-design-request.php';
         require_once ABC_SUITE_PATH . 'includes/class-b2b-designer-frontend.php';
+        require_once ABC_SUITE_PATH . 'includes/class-user-roles.php';
     }
 
     private function init_modules(): void {
@@ -44,5 +45,6 @@ class ABC_Suite {
         (new ABC_Assets())->register();
         (new ABC_Design_Request())->register();
         (new ABC_B2B_Designer_Frontend())->register();
+        (new ABC_User_Roles())->register();
     }
 }
