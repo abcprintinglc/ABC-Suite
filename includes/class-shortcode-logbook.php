@@ -18,6 +18,8 @@ class ABC_Shortcode_Logbook {
             <div class="abc-estimator-header">
                 <div class="abc-estimator-controls">
                     <input type="text" id="abc-frontend-search" placeholder="Search invoice #, client, job name, keywords...">
+                    <select id="abc-frontend-client"><option value="">All clients</option></select>
+                    <select id="abc-frontend-year"><option value="">All years</option></select>
                     <span class="spinner" id="abc-spinner" style="display:none;">Loading...</span>
                 </div>
                 <div>

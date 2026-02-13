@@ -12,7 +12,7 @@ class ABC_CPT_ABC_Estimate {
         $labels = [
             'name' => 'Estimates & Jobs',
             'singular_name' => 'Job',
-            'menu_name' => 'Estimator / Log',
+            'menu_name' => 'Estimator',
             'add_new_item' => 'New Estimate',
             'edit_item' => 'Edit Job Jacket',
         ];
@@ -89,11 +89,14 @@ class ABC_CPT_ABC_Estimate {
         $text_fields = [
             'abc_client_name',
             'abc_client_email',
+            'abc_client_user_id',
+            'abc_client_parent_id',
             'abc_job_description',
             'abc_promised_date',
             'abc_ordered_date',
             'abc_last_ticket',
             'abc_send_proof_to',
+            'abc_qty',
             'abc_completed_by',
             'abc_printer_tech',
             'abc_designer',
