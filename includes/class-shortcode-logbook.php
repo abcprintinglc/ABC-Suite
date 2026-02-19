@@ -3,6 +3,7 @@
 class ABC_Shortcode_Logbook {
     public function register(): void {
         add_shortcode('abc_estimator_pro', [$this, 'render_shortcode']);
+        add_shortcode('abc_designer_layout', [$this, 'render_designer_layout']);
     }
 
     public function render_shortcode(): string {
@@ -41,6 +42,68 @@ class ABC_Shortcode_Logbook {
             <p id="abc-no-results" style="display:none; color:#666; margin-top:20px;">No estimates found.</p>
         </div>
         <?php
+        return ob_get_clean();
+    }
+
+    public function render_designer_layout(): string {
+        wp_enqueue_style('abc-suite-frontend');
+
+        ob_start();
+        ?>
+        <div class="abc-designer-layout" aria-label="Designer workspace mockup">
+            <aside class="abc-designer-sidebar">
+                <div class="abc-designer-sidebar-tabs">
+                    <button type="button" class="is-active">Options</button>
+                    <button type="button">Design</button>
+                </div>
+
+                <div class="abc-designer-panel">
+                    <p class="abc-designer-count">Total Photo Slots: 0</p>
+                    <button type="button" class="abc-designer-upload">Upload Photos</button>
+
+                    <h4>Corner Type:</h4>
+                    <ul>
+                        <li>
+                            <label>
+                                <input type="radio" name="abc_corner_type" checked>
+                                Rounded
+                                <span>+$0.01 ea.</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                <input type="radio" name="abc_corner_type">
+                                Square
+                            </label>
+                        </li>
+                    </ul>
+                </div>
+            </aside>
+
+            <section class="abc-designer-main">
+                <header class="abc-designer-toolbar">
+                    <button type="button">Upload photos</button>
+                    <button type="button">Add photo slot</button>
+                    <button type="button">Add text slot</button>
+                </header>
+
+                <div class="abc-designer-canvas-wrap">
+                    <div class="abc-designer-canvas" role="img" aria-label="Business card design area">
+                        <div class="abc-designer-shape">
+                            <strong>BETTER BUILT</strong>
+                            <span>HANDYMAN SERVICE</span>
+                        </div>
+                    </div>
+                </div>
+
+                <footer class="abc-designer-footer">
+                    <div class="abc-designer-sides">1. Front &nbsp;&nbsp; 2. Back</div>
+                    <button type="button" class="button button-primary">Next</button>
+                </footer>
+            </section>
+        </div>
+        <?php
+
         return ob_get_clean();
     }
 }
