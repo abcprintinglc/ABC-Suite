@@ -28,6 +28,8 @@ class ABC_Suite {
         require_once ABC_SUITE_PATH . 'includes/class-design-request.php';
         require_once ABC_SUITE_PATH . 'includes/class-b2b-designer-frontend.php';
         require_once ABC_SUITE_PATH . 'includes/class-user-roles.php';
+        require_once ABC_SUITE_PATH . 'includes/class-cpt-abc-suite-records.php';
+        require_once ABC_SUITE_PATH . 'includes/class-admin-suite-menu.php';
     }
 
     private function init_modules(): void {
@@ -46,5 +48,7 @@ class ABC_Suite {
         (new ABC_Design_Request())->register();
         (new ABC_B2B_Designer_Frontend())->register();
         (new ABC_User_Roles())->register();
+        (new ABC_CPT_ABC_Suite_Records())->register();
+        (new ABC_Admin_Suite_Menu())->register();
     }
 }
