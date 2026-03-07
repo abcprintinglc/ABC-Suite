@@ -8,7 +8,24 @@ class ABC_Installer {
     public static function create_custom_tables(): void {
         global $wpdb;
 
-        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        if (!isset($wpdb) || !is_object($wpdb)) {
+            return;
+        }
+
+        if (!defined('ABSPATH')) {
+            return;
+        }
+
+        $upgrade_path = ABSPATH . 'wp-admin/includes/upgrade.php';
+        if (!file_exists($upgrade_path)) {
+            return;
+        }
+
+        require_once $upgrade_path;
+
+        if (!function_exists('dbDelta')) {
+            return;
+        }
 
         $charset_collate = $wpdb->get_charset_collate();
         $prefix = $wpdb->prefix;
@@ -104,7 +121,7 @@ class ABC_Installer {
                 note longtext NULL,
                 created_at datetime NOT NULL,
                 PRIMARY KEY  (id),
-                KEY entity (entity_type,entity_id),
+                KEY entity_lookup (entity_type,entity_id),
                 KEY created_at (created_at)
             ) $charset_collate",
         ];

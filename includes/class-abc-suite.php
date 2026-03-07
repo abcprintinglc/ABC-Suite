@@ -7,48 +7,70 @@ class ABC_Suite {
     }
 
     private function includes(): void {
-        require_once ABC_SUITE_PATH . 'includes/b2b-designer-helpers.php';
-        require_once ABC_SUITE_PATH . 'includes/class-cpt-abc-estimate.php';
-        require_once ABC_SUITE_PATH . 'includes/class-cpt-abc-product-template.php';
-        require_once ABC_SUITE_PATH . 'includes/class-meta-box-job-jacket.php';
-        require_once ABC_SUITE_PATH . 'includes/class-history.php';
-        require_once ABC_SUITE_PATH . 'includes/class-search-index.php';
-        require_once ABC_SUITE_PATH . 'includes/class-ajax.php';
-        require_once ABC_SUITE_PATH . 'includes/class-print-view.php';
-        require_once ABC_SUITE_PATH . 'includes/class-admin-logbook.php';
-        require_once ABC_SUITE_PATH . 'includes/class-csv-tools.php';
-        require_once ABC_SUITE_PATH . 'includes/class-shortcode-logbook.php';
-        require_once ABC_SUITE_PATH . 'includes/class-duplicate-action.php';
-        require_once ABC_SUITE_PATH . 'includes/class-assets.php';
-        require_once ABC_SUITE_PATH . 'includes/class-price-matrix.php';
-        require_once ABC_SUITE_PATH . 'includes/class-price-matrix-admin.php';
-        require_once ABC_SUITE_PATH . 'includes/class-payout-report.php';
-        require_once ABC_SUITE_PATH . 'includes/class-estimator-settings.php';
-        require_once ABC_SUITE_PATH . 'includes/class-estimate-learning-log.php';
-        require_once ABC_SUITE_PATH . 'includes/class-design-request.php';
-        require_once ABC_SUITE_PATH . 'includes/class-b2b-designer-frontend.php';
-        require_once ABC_SUITE_PATH . 'includes/class-user-roles.php';
-        require_once ABC_SUITE_PATH . 'includes/class-cpt-abc-suite-records.php';
-        require_once ABC_SUITE_PATH . 'includes/class-admin-suite-menu.php';
+        $files = [
+            'includes/b2b-designer-helpers.php',
+            'includes/class-cpt-abc-estimate.php',
+            'includes/class-cpt-abc-product-template.php',
+            'includes/class-meta-box-job-jacket.php',
+            'includes/class-history.php',
+            'includes/class-search-index.php',
+            'includes/class-ajax.php',
+            'includes/class-print-view.php',
+            'includes/class-admin-logbook.php',
+            'includes/class-csv-tools.php',
+            'includes/class-shortcode-logbook.php',
+            'includes/class-duplicate-action.php',
+            'includes/class-assets.php',
+            'includes/class-price-matrix.php',
+            'includes/class-price-matrix-admin.php',
+            'includes/class-payout-report.php',
+            'includes/class-estimator-settings.php',
+            'includes/class-estimate-learning-log.php',
+            'includes/class-design-request.php',
+            'includes/class-b2b-designer-frontend.php',
+            'includes/class-user-roles.php',
+            'includes/class-cpt-abc-suite-records.php',
+            'includes/class-admin-suite-menu.php',
+        ];
+
+        foreach ($files as $file) {
+            $path = ABC_SUITE_PATH . $file;
+            if (file_exists($path)) {
+                require_once $path;
+            }
+        }
     }
 
     private function init_modules(): void {
-        (new ABC_CPT_ABC_Estimate())->register();
-        (new ABC_CPT_ABC_Product_Template())->register();
-        (new ABC_Meta_Box_Job_Jacket())->register();
-        (new ABC_History())->register();
-        (new ABC_Search_Index())->register();
-        (new ABC_Ajax())->register();
-        (new ABC_Print_View())->register();
-        (new ABC_Admin_Logbook())->register();
-        (new ABC_CSV_Tools())->register();
-        (new ABC_Shortcode_Logbook())->register();
-        (new ABC_Duplicate_Action())->register();
-        (new ABC_Assets())->register();
-        (new ABC_Design_Request())->register();
-        (new ABC_B2B_Designer_Frontend())->register();
-        (new ABC_User_Roles())->register();
-        (new ABC_CPT_ABC_Suite_Records())->register();
-        (new ABC_Admin_Suite_Menu())->register();
+        $modules = [
+            'ABC_CPT_ABC_Estimate',
+            'ABC_CPT_ABC_Product_Template',
+            'ABC_Meta_Box_Job_Jacket',
+            'ABC_History',
+            'ABC_Search_Index',
+            'ABC_Ajax',
+            'ABC_Print_View',
+            'ABC_Admin_Logbook',
+            'ABC_CSV_Tools',
+            'ABC_Shortcode_Logbook',
+            'ABC_Duplicate_Action',
+            'ABC_Assets',
+            'ABC_Design_Request',
+            'ABC_B2B_Designer_Frontend',
+            'ABC_User_Roles',
+            'ABC_CPT_ABC_Suite_Records',
+            'ABC_Admin_Suite_Menu',
+        ];
+
+        foreach ($modules as $module) {
+            if (!class_exists($module)) {
+                continue;
+            }
+
+            $instance = new $module();
+            if (method_exists($instance, 'register')) {
+                $instance->register();
+            }
+        }
     }
 }

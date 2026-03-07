@@ -27,7 +27,7 @@ class ABC_User_Roles {
         }
 
         $shop_manager = get_role('shop_manager');
-        if ($shop_manager instanceof WP_Role) {
+        if ($shop_manager) {
             foreach ($this->manager_caps() as $cap) {
                 $shop_manager->add_cap($cap);
             }
