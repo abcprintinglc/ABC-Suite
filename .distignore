@@ -1,0 +1,11 @@
+.git/
+.gitignore
+.distignore
+*.zip
+*.pdf
+*.xlsx
+*.csv
+tools/
+*.log
+.DS_Store
+Thumbs.db

@@ -18,6 +18,7 @@ define('ABC_SUITE_URL', plugin_dir_url(__FILE__));
 define('ABC_SUITE_PLUGIN_FILE', __FILE__);
 
 require_once ABC_SUITE_PATH . 'includes/class-abc-suite.php';
+require_once ABC_SUITE_PATH . 'includes/class-module-loader.php';
 require_once ABC_SUITE_PATH . 'includes/class-price-matrix.php';
 require_once ABC_SUITE_PATH . 'includes/class-user-roles.php';
 require_once ABC_SUITE_PATH . 'includes/class-installer.php';
@@ -28,7 +29,15 @@ function abc_suite_record_boot_error($message) {
         return;
     }
 
-    update_option('abc_suite_boot_error', wp_strip_all_tags($message), false);
+    $existing = get_option('abc_suite_boot_error', []);
+    if (!is_array($existing)) {
+        $existing = $existing ? [(string) $existing] : [];
+    }
+
+    $existing[] = wp_strip_all_tags($message);
+    $existing = array_values(array_unique(array_filter($existing)));
+
+    update_option('abc_suite_boot_error', $existing, false);
 }
 
 function abc_suite_admin_notices() {
@@ -36,8 +45,12 @@ function abc_suite_admin_notices() {
         return;
     }
 
-    $message = get_option('abc_suite_boot_error', '');
-    if ($message) {
+    $messages = get_option('abc_suite_boot_error', []);
+    if (!is_array($messages)) {
+        $messages = $messages ? [(string) $messages] : [];
+    }
+
+    foreach ($messages as $message) {
         echo '<div class="notice notice-error"><p><strong>ABC Suite:</strong> ' . esc_html($message) . '</p></div>';
     }
 
@@ -51,7 +64,19 @@ function abc_suite_boot() {
     try {
         delete_option('abc_suite_boot_error');
         $suite = new ABC_Suite();
-        $suite->boot();
+        $report = $suite->boot();
+
+        foreach ($report['missing_files'] ?? [] as $file) {
+            abc_suite_record_boot_error('Missing required module file: ' . $file);
+        }
+
+        foreach ($report['missing_classes'] ?? [] as $class) {
+            abc_suite_record_boot_error('Required module class did not load: ' . $class);
+        }
+
+        foreach ($report['module_errors'] ?? [] as $error) {
+            abc_suite_record_boot_error('Module registration failed: ' . $error);
+        }
     } catch (Throwable $e) {
         abc_suite_record_boot_error('Plugin boot failed: ' . $e->getMessage());
         error_log('[ABC Suite] Boot failure: ' . $e->getMessage());
