@@ -29,11 +29,16 @@
 
     rows.forEach(function (row) {
       var due = row.due_date ? escapeHtml(row.due_date) : '—';
+      var ordered = row.ordered_date ? escapeHtml(row.ordered_date) : '—';
+      var qty = row.qty ? escapeHtml(row.qty) : '—';
+      var amount = row.amount ? ('$' + escapeHtml(parseFloat(row.amount).toFixed(2))) : '—';
       var rush = row.is_rush ? ' <span class="abc-rush">(RUSH)</span>' : '';
       var urgencyClass = row.urgency === 'urgent'
         ? 'abc-row-urgent'
         : (row.urgency === 'warning' ? 'abc-row-warning' : '');
       var clientOrTitle = (row.client && row.client.length) ? row.client : row.title;
+      var jobLabel = row.title && row.title !== clientOrTitle ? '<div class="description">' + escapeHtml(row.title) + '</div>' : '';
+      var linkedAccount = row.client_user_id ? '<div class="description">Linked account</div>' : '<div class="description">No account linked</div>';
 
       var currentStage = row.stage ? String(row.stage).toLowerCase() : 'estimate';
       var stages = ['estimate', 'pending', 'production', 'completed'];
@@ -45,21 +50,39 @@
       });
       stageSelect += '</select>';
 
+      var estimateBtn = row.edit_url
+        ? '<a href="' + escapeHtml(row.edit_url) + '" class="button button-primary" target="_blank" rel="noopener">Estimate</a>'
+        : '';
+
       var jobJacketBtn = row.edit_url
         ? '<a href="' + escapeHtml(row.edit_url) + '" class="button" target="_blank" rel="noopener">Job Jacket</a>'
         : '';
 
       var printBtn = row.print_url
-        ? '<a href="' + escapeHtml(row.print_url) + '" class="button" target="_blank" rel="noopener">Print</a>'
+        ? '<a href="' + escapeHtml(row.print_url) + '" class="button" target="_blank" rel="noopener">Print Jacket</a>'
         : '';
+
+      var wooBtn = row.woo_order_url
+        ? '<a href="' + escapeHtml(row.woo_order_url) + '" class="button" target="_blank" rel="noopener">Woo Order</a>'
+        : '<span class="description">No Woo order</span>';
+
+      var squareStatus = row.square_invoice_id
+        ? '<div><strong>Square:</strong> ' + escapeHtml(row.square_invoice_status || 'created') + '</div>'
+        : '<div class="description">Square: not invoiced</div>';
+      var wooStatus = row.wc_order_id
+        ? '<div><strong>Woo:</strong> #' + escapeHtml(row.wc_order_id) + (row.wc_order_status ? ' (' + escapeHtml(row.wc_order_status) + ')' : '') + '</div>'
+        : '<div class="description">Woo: unassigned</div>';
 
       var html = '' +
         '<tr class="' + urgencyClass + '">' +
           '<td><strong>' + escapeHtml(row.invoice || '---') + '</strong></td>' +
-          '<td>' + escapeHtml(clientOrTitle || '') + '</td>' +
+          '<td>' + ordered + '<div class="description">Due ' + due + rush + '</div></td>' +
+          '<td><strong>' + escapeHtml(clientOrTitle || '') + '</strong>' + jobLabel + linkedAccount + '</td>' +
+          '<td>' + qty + '</td>' +
+          '<td>' + amount + '</td>' +
           '<td>' + stageSelect + '</td>' +
-          '<td>' + due + rush + '</td>' +
-          '<td class="abc-actions">' + jobJacketBtn + ' ' + printBtn + '</td>' +
+          '<td>' + wooStatus + squareStatus + '</td>' +
+          '<td class="abc-actions">' + estimateBtn + ' ' + jobJacketBtn + ' ' + printBtn + ' ' + wooBtn + '</td>' +
         '</tr>';
 
       $tbody.append(html);
@@ -492,8 +515,17 @@
     }
 
     $('select[name="abc_client_user_id"]').on('change', function () {
-      var org = $(this).find(':selected').data('parent') || '';
+      var $selected = $(this).find(':selected');
+      var org = $selected.data('parent') || '';
+      var name = $selected.data('name') || '';
+      var email = $selected.data('email') || '';
       $('input[name="abc_client_parent_id"]').val(org);
+      if (name && $('input[name="abc_client_name"]').length) {
+        $('input[name="abc_client_name"]').val(name);
+      }
+      if (email && $('input[name="abc_client_email"]').length) {
+        $('input[name="abc_client_email"]').val(email);
+      }
     });
 
     $('#abc_design_employee_id').on('change', function () {
