@@ -21,7 +21,7 @@ class ABC_CPT_ABC_Estimate {
             'labels' => $labels,
             'public' => false,
             'show_ui' => true,
-            'show_in_menu' => true,
+            'show_in_menu' => false,
             'supports' => ['title', 'revisions', 'author'],
             'menu_icon' => 'dashicons-calculator',
             'map_meta_cap' => true,

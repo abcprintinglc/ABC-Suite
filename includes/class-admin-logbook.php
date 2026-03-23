@@ -7,16 +7,16 @@ class ABC_Admin_Logbook {
 
     public function register_menu(): void {
         add_submenu_page(
-            'edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE,
-            'ABC Suite Hub',
-            'ABC Suite Hub',
+            ABC_Admin_Suite_Menu::MENU_SLUG,
+            'ABC Suite Dashboard',
+            'Dashboard',
             'edit_posts',
             'abc-suite-hub',
             [$this, 'render_hub_page']
         );
 
         add_submenu_page(
-            'edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE,
+            ABC_Admin_Suite_Menu::MENU_SLUG,
             'Product Library',
             'Product Library',
             'edit_posts',
@@ -24,7 +24,7 @@ class ABC_Admin_Logbook {
         );
 
         add_submenu_page(
-            'edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE,
+            ABC_Admin_Suite_Menu::MENU_SLUG,
             'Price Matrix',
             'Price Matrix',
             'manage_options',
@@ -33,7 +33,7 @@ class ABC_Admin_Logbook {
         );
 
         add_submenu_page(
-            'edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE,
+            ABC_Admin_Suite_Menu::MENU_SLUG,
             'Payout Report',
             'Payout Report',
             'manage_options',
@@ -42,7 +42,7 @@ class ABC_Admin_Logbook {
         );
 
         add_submenu_page(
-            'edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE,
+            ABC_Admin_Suite_Menu::MENU_SLUG,
             'Estimator Settings',
             'Estimator Settings',
             'manage_options',
@@ -51,7 +51,7 @@ class ABC_Admin_Logbook {
         );
 
         add_submenu_page(
-            'edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE,
+            ABC_Admin_Suite_Menu::MENU_SLUG,
             'Estimate Learning Log',
             'Estimate Learning Log',
             'manage_options',
@@ -60,7 +60,7 @@ class ABC_Admin_Logbook {
         );
 
         add_submenu_page(
-            'edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE,
+            ABC_Admin_Suite_Menu::MENU_SLUG,
             'Design Requests',
             'Design Requests',
             'edit_posts',
@@ -68,7 +68,7 @@ class ABC_Admin_Logbook {
         );
 
         add_submenu_page(
-            'edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE,
+            ABC_Admin_Suite_Menu::MENU_SLUG,
             'Data Tools',
             'Data Tools',
             'manage_options',
@@ -84,18 +84,18 @@ class ABC_Admin_Logbook {
         }
 
         $links = [
-            ['label' => 'Estimator / Jobs', 'url' => admin_url('edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE)],
+            ['label' => 'Estimator / Jobs', 'url' => admin_url('admin.php?page=' . ABC_Admin_Suite_Menu::MENU_SLUG)],
             ['label' => 'Product Library', 'url' => admin_url('edit.php?post_type=' . ABC_CPT_ABC_Product_Template::POST_TYPE)],
-            ['label' => 'Price Matrix', 'url' => admin_url('edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE . '&page=abc-price-matrix')],
-            ['label' => 'Payout Report', 'url' => admin_url('edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE . '&page=abc-payout-report')],
-            ['label' => 'Estimator Settings', 'url' => admin_url('edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE . '&page=abc-estimator-settings')],
-            ['label' => 'Estimate Learning Log', 'url' => admin_url('edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE . '&page=abc-estimate-learning-log')],
+            ['label' => 'Price Matrix', 'url' => admin_url('admin.php?page=abc-price-matrix')],
+            ['label' => 'Payout Report', 'url' => admin_url('admin.php?page=abc-payout-report')],
+            ['label' => 'Estimator Settings', 'url' => admin_url('admin.php?page=abc-estimator-settings')],
+            ['label' => 'Estimate Learning Log', 'url' => admin_url('admin.php?page=abc-estimate-learning-log')],
             ['label' => 'Design Requests', 'url' => admin_url('edit.php?post_type=' . ABC_Design_Request::POST_TYPE)],
-            ['label' => 'Data Tools', 'url' => admin_url('edit.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE . '&page=abc-data-tools')],
+            ['label' => 'Data Tools', 'url' => admin_url('admin.php?page=abc-data-tools')],
         ];
         ?>
         <div class="wrap">
-            <h1 class="wp-heading-inline">ABC Suite Hub</h1>
+            <h1 class="wp-heading-inline">ABC Suite Dashboard</h1>
             <p class="description">Quick access to the full ABC Suite tool list.</p>
             <div class="abc-matrix-grid">
                 <?php foreach ($links as $link) : ?>
