@@ -98,6 +98,8 @@ class ABC_Meta_Box_Job_Jacket {
         $estimate_total = (string) get_post_meta($post->ID, 'abc_estimate_total', true);
         $square_invoice_id = (string) get_post_meta($post->ID, 'abc_square_invoice_id', true);
         $square_invoice_status = (string) get_post_meta($post->ID, 'abc_square_invoice_status', true);
+        $wc_order_id = (string) get_post_meta($post->ID, 'abc_wc_order_id', true);
+        $wc_order_status = (string) get_post_meta($post->ID, 'abc_wc_order_status', true);
         $estimate_paid = (string) get_post_meta($post->ID, 'abc_estimate_paid', true);
         if ($printer_pct === '') {
             $printer_pct = '5';
@@ -106,7 +108,8 @@ class ABC_Meta_Box_Job_Jacket {
             $designer_pct = '5';
         }
         if ($commission_pct === '') {
-            $commission_pct = '0';
+            $role_rates = get_option('abc_role_commission_rates', []);
+            $commission_pct = is_array($role_rates) && isset($role_rates['sales_rep']) ? (string) $role_rates['sales_rep'] : '0';
         }
         $customer_users = get_users([
             'role__in' => ['customer'],
@@ -177,10 +180,35 @@ class ABC_Meta_Box_Job_Jacket {
                         <?php foreach ($customer_users as $customer_user) : ?>
                             <?php $org_role = (string) get_user_meta($customer_user->ID, 'abc_b2b_org_role', true); ?>
                             <?php $org_id = (string) get_user_meta($customer_user->ID, 'abc_b2b_org_id', true); ?>
-                            <option value="<?php echo esc_attr((string) $customer_user->ID); ?>" data-parent="<?php echo esc_attr($org_id !== '' ? $org_id : ''); ?>" <?php selected($client_user_id, (string) $customer_user->ID); ?>><?php echo esc_html($customer_user->display_name . ($org_role === 'admin' ? ' (Store Manager)' : ' (Employee)')); ?></option>
+                            <option value="<?php echo esc_attr((string) $customer_user->ID); ?>" data-parent="<?php echo esc_attr($org_id !== '' ? $org_id : ''); ?>" data-name="<?php echo esc_attr($customer_user->display_name); ?>" data-email="<?php echo esc_attr((string) $customer_user->user_email); ?>" <?php selected($client_user_id, (string) $customer_user->ID); ?>><?php echo esc_html($customer_user->display_name . ($org_role === 'admin' ? ' (Store Manager)' : ' (Employee)')); ?></option>
                         <?php endforeach; ?>
                     </select>
                     <input type="hidden" name="abc_client_parent_id" value="<?php echo esc_attr($client_parent_id); ?>">
+                    <p class="description">Selecting a customer account ties the ticket name/email to the WordPress user account and keeps the organization relationship attached.</p>
+                </div>
+            </div>
+
+            <div class="abc-jacket-row">
+                <label>COMMERCE LINKS</label>
+                <div class="abc-jacket-stack">
+                    <div class="abc-jacket-grid" style="grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
+                        <div>
+                            <label for="abc_wc_order_id"><strong>WooCommerce Order #</strong></label>
+                            <input type="text" name="abc_wc_order_id" id="abc_wc_order_id" value="<?php echo esc_attr($wc_order_id); ?>" placeholder="Assign Woo order id">
+                        </div>
+                        <div>
+                            <label for="abc_wc_order_status"><strong>Woo Status</strong></label>
+                            <input type="text" name="abc_wc_order_status" id="abc_wc_order_status" value="<?php echo esc_attr($wc_order_status); ?>" placeholder="processing / completed">
+                        </div>
+                    </div>
+                    <p class="description">Use this to assign the ticket # to a WooCommerce purchase while retaining Square invoicing as a parallel option.</p>
+                </div>
+            </div>
+
+            <div class="abc-jacket-row">
+                <label>CUSTOMER EMAIL</label>
+                <div class="abc-jacket-stack">
+                    <input type="email" name="abc_client_email" value="<?php echo esc_attr($client_email); ?>" placeholder="customer@example.com" class="regular-text">
                 </div>
             </div>
 
@@ -398,6 +426,18 @@ class ABC_Meta_Box_Job_Jacket {
                     <label>&nbsp;</label>
                     <button type="button" class="button" id="abc-create-square-invoice" data-estimate-id="<?php echo esc_attr((string) $post->ID); ?>">Create Square Invoice</button>
                 </div>
+                <div>
+                    <label>Print Jacket</label>
+                    <a href="<?php echo esc_url(home_url('/?abc_action=print_estimate&id=' . $post->ID)); ?>" class="button" target="_blank" rel="noopener">Print Job Jacket</a>
+                </div>
+                <div>
+                    <label>Woo Order</label>
+                    <?php if ($wc_order_id !== '') : ?>
+                        <a href="<?php echo esc_url(admin_url('post.php?post=' . absint($wc_order_id) . '&action=edit')); ?>" class="button" target="_blank" rel="noopener">Open Woo Order</a>
+                    <?php else : ?>
+                        <span class="description">Assign Woo order ID above.</span>
+                    <?php endif; ?>
+                </div>
             </div>
 
             <input type="hidden" name="abc_estimate_data" id="abc_estimate_data" value="<?php echo esc_attr($estimate_json); ?>">
@@ -572,6 +612,8 @@ class ABC_Meta_Box_Job_Jacket {
             'abc_estimate_paid',
             'abc_square_invoice_id',
             'abc_square_invoice_status',
+            'abc_wc_order_id',
+            'abc_wc_order_status',
         ];
 
         $cpt = new ABC_CPT_ABC_Estimate();
@@ -650,6 +692,29 @@ class ABC_Meta_Box_Job_Jacket {
                     $changes[] = 'Line items updated.';
                 } else {
                     $changes[] = str_replace('abc_', '', $field) . ' updated.';
+                }
+            }
+        }
+
+        $client_user_id = (int) get_post_meta($post_id, 'abc_client_user_id', true);
+        if ($client_user_id > 0) {
+            $user = get_user_by('id', $client_user_id);
+            if ($user) {
+                $linked_name = (string) $user->display_name;
+                $linked_email = (string) $user->user_email;
+                $linked_parent = (string) get_user_meta($client_user_id, 'abc_b2b_org_id', true);
+
+                if ($linked_name !== '' && (string) get_post_meta($post_id, 'abc_client_name', true) !== $linked_name) {
+                    update_post_meta($post_id, 'abc_client_name', $linked_name);
+                    $changes[] = 'client name synced from linked user';
+                }
+                if ($linked_email !== '' && (string) get_post_meta($post_id, 'abc_client_email', true) !== $linked_email) {
+                    update_post_meta($post_id, 'abc_client_email', $linked_email);
+                    $changes[] = 'client email synced from linked user';
+                }
+                if ($linked_parent !== '' && (string) get_post_meta($post_id, 'abc_client_parent_id', true) !== $linked_parent) {
+                    update_post_meta($post_id, 'abc_client_parent_id', $linked_parent);
+                    $changes[] = 'organization link synced from linked user';
                 }
             }
         }

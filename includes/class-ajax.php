@@ -90,25 +90,51 @@ class ABC_Ajax {
             $due_date = $this->due_date_for_display((string) $due_raw);
             $rush = get_post_meta($post->ID, 'abc_is_rush', true);
             $status = get_post_meta($post->ID, 'abc_status', true) ?: 'estimate';
-            $client = get_post_meta($post->ID, 'abc_client_name', true);
+            $client = (string) get_post_meta($post->ID, 'abc_client_name', true);
+            $client_user_id = (int) get_post_meta($post->ID, 'abc_client_user_id', true);
+            $qty = (string) get_post_meta($post->ID, 'abc_qty', true);
+            $amount = (string) get_post_meta($post->ID, 'abc_estimate_total', true);
+            $order_date = (string) get_post_meta($post->ID, 'abc_ordered_date', true);
+            $wc_order_id = (string) get_post_meta($post->ID, 'abc_wc_order_id', true);
+            $wc_order_status = (string) get_post_meta($post->ID, 'abc_wc_order_status', true);
+            $square_invoice_id = (string) get_post_meta($post->ID, 'abc_square_invoice_id', true);
+            $square_invoice_status = (string) get_post_meta($post->ID, 'abc_square_invoice_status', true);
 
             $urgency = self::get_urgency_status($due_date);
             if ($rush === '1') {
                 $urgency = 'urgent';
             }
 
+            $customer_label = $client;
+            if ($client_user_id > 0) {
+                $user = get_user_by('id', $client_user_id);
+                if ($user && !empty($user->display_name)) {
+                    $customer_label = $user->display_name;
+                }
+            }
+
             $items[] = [
                 'id' => $post->ID,
                 'title' => $post->post_title,
-                'client' => $client,
+                'client' => $customer_label,
+                'client_name' => $client,
+                'client_user_id' => $client_user_id,
                 'invoice' => get_post_meta($post->ID, 'abc_invoice_number', true),
                 'due_date' => $due_date,
+                'ordered_date' => $order_date,
+                'qty' => $qty,
+                'amount' => $amount,
                 'stage' => $status,
+                'wc_order_id' => $wc_order_id,
+                'wc_order_status' => $wc_order_status,
+                'square_invoice_id' => $square_invoice_id,
+                'square_invoice_status' => $square_invoice_status,
                 'is_rush' => $rush === '1',
                 'urgency' => $urgency,
                 'urgency_class' => 'urgency-' . $urgency,
                 'edit_url' => get_edit_post_link($post->ID, 'raw'),
                 'print_url' => home_url('/?abc_action=print_estimate&id=' . $post->ID),
+                'woo_order_url' => $wc_order_id !== '' ? admin_url('post.php?post=' . absint($wc_order_id) . '&action=edit') : '',
             ];
         }
 
