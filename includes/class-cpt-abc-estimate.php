@@ -21,7 +21,7 @@ class ABC_CPT_ABC_Estimate {
             'labels' => $labels,
             'public' => false,
             'show_ui' => true,
-            'show_in_menu' => true,
+            'show_in_menu' => false,
             'supports' => ['title', 'revisions', 'author'],
             'menu_icon' => 'dashicons-calculator',
             'map_meta_cap' => true,
@@ -102,6 +102,8 @@ class ABC_CPT_ABC_Estimate {
             'abc_designer',
             'abc_sales_rep',
             'abc_design_request_id',
+            'abc_wc_order_id',
+            'abc_wc_order_status',
         ];
 
         $textarea_fields = [
