@@ -2,81 +2,12 @@
 
 class ABC_Admin_Logbook {
     public function register(): void {
-        add_action('admin_menu', [$this, 'register_menu']);
+        // Menu registration is centralized in ABC_Admin_Suite_Menu.
     }
 
     public function register_menu(): void {
-        add_submenu_page(
-            ABC_Admin_Suite_Menu::MENU_SLUG,
-            'ABC Suite Dashboard',
-            'Dashboard',
-            'edit_posts',
-            'abc-suite-hub',
-            [$this, 'render_hub_page']
-        );
-
-        add_submenu_page(
-            ABC_Admin_Suite_Menu::MENU_SLUG,
-            'Product Library',
-            'Product Library',
-            'edit_posts',
-            'edit.php?post_type=' . ABC_CPT_ABC_Product_Template::POST_TYPE
-        );
-
-        add_submenu_page(
-            ABC_Admin_Suite_Menu::MENU_SLUG,
-            'Price Matrix',
-            'Price Matrix',
-            'manage_options',
-            'abc-price-matrix',
-            [new ABC_Price_Matrix_Admin(), 'render_page']
-        );
-
-        add_submenu_page(
-            ABC_Admin_Suite_Menu::MENU_SLUG,
-            'Payout Report',
-            'Payout Report',
-            'manage_options',
-            'abc-payout-report',
-            [new ABC_Payout_Report(), 'render_page']
-        );
-
-        add_submenu_page(
-            ABC_Admin_Suite_Menu::MENU_SLUG,
-            'Estimator Settings',
-            'Estimator Settings',
-            'manage_options',
-            'abc-estimator-settings',
-            [new ABC_Estimator_Settings(), 'render_page']
-        );
-
-        add_submenu_page(
-            ABC_Admin_Suite_Menu::MENU_SLUG,
-            'Estimate Learning Log',
-            'Estimate Learning Log',
-            'manage_options',
-            'abc-estimate-learning-log',
-            [new ABC_Estimate_Learning_Log(), 'render_page']
-        );
-
-        add_submenu_page(
-            ABC_Admin_Suite_Menu::MENU_SLUG,
-            'Design Requests',
-            'Design Requests',
-            'edit_posts',
-            'edit.php?post_type=' . ABC_Design_Request::POST_TYPE
-        );
-
-        add_submenu_page(
-            ABC_Admin_Suite_Menu::MENU_SLUG,
-            'Data Tools',
-            'Data Tools',
-            'manage_options',
-            'abc-data-tools',
-            [new ABC_CSV_Tools(), 'render_page']
-        );
+        // Legacy no-op kept for backward compatibility.
     }
-
 
     public function render_hub_page(): void {
         if (!current_user_can('edit_posts')) {
@@ -84,19 +15,20 @@ class ABC_Admin_Logbook {
         }
 
         $links = [
-            ['label' => 'Estimator / Jobs', 'url' => admin_url('admin.php?page=' . ABC_Admin_Suite_Menu::MENU_SLUG)],
-            ['label' => 'Product Library', 'url' => admin_url('edit.php?post_type=' . ABC_CPT_ABC_Product_Template::POST_TYPE)],
+            ['label' => 'Job Log', 'url' => admin_url('admin.php?page=' . ABC_Admin_Suite_Menu::MENU_SLUG)],
+            ['label' => 'Organization Templates', 'url' => admin_url('admin.php?page=abc-suite-templates')],
+            ['label' => 'Data Tools', 'url' => admin_url('admin.php?page=abc-data-tools')],
+            ['label' => 'Designer', 'url' => admin_url('admin.php?page=abc-suite-designer')],
+            ['label' => 'Design Requests', 'url' => admin_url('admin.php?page=abc-suite-design-requests')],
+            ['label' => 'Product Library', 'url' => admin_url('admin.php?page=abc-suite-product-library')],
             ['label' => 'Price Matrix', 'url' => admin_url('admin.php?page=abc-price-matrix')],
-            ['label' => 'Payout Report', 'url' => admin_url('admin.php?page=abc-payout-report')],
             ['label' => 'Estimator Settings', 'url' => admin_url('admin.php?page=abc-estimator-settings')],
             ['label' => 'Estimate Learning Log', 'url' => admin_url('admin.php?page=abc-estimate-learning-log')],
-            ['label' => 'Design Requests', 'url' => admin_url('edit.php?post_type=' . ABC_Design_Request::POST_TYPE)],
-            ['label' => 'Data Tools', 'url' => admin_url('admin.php?page=abc-data-tools')],
         ];
         ?>
         <div class="wrap">
             <h1 class="wp-heading-inline">ABC Suite Dashboard</h1>
-            <p class="description">Quick access to the full ABC Suite tool list.</p>
+            <p class="description">Quick access to the active ABC Suite tools.</p>
             <div class="abc-matrix-grid">
                 <?php foreach ($links as $link) : ?>
                     <div class="abc-matrix-card">
