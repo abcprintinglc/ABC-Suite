@@ -48,6 +48,11 @@ The plugin bootstrap now:
 4. Add a tiny logger + diagnostics page
 5. Add a repeatable local WordPress test environment with debug logging enabled
 
+See also:
+
+- `ARCHITECTURE.md` — target plugin architecture and domain model
+- `ROADMAP.md` — phased implementation plan
+
 ## Debugging
 
 When WordPress fatals, the most useful file is usually:
