@@ -118,20 +118,25 @@ class ABC_Admin_Logbook {
             <h1 class="wp-heading-inline">Estimator Log Book</h1>
             <a href="<?php echo esc_url(admin_url('post-new.php?post_type=' . ABC_CPT_ABC_Estimate::POST_TYPE)); ?>" class="page-title-action">New Job Jacket</a>
 
+            <p class="description">Main job log view for ticket #, date, customer, quantity, amount, estimate access, job jacket creation, WooCommerce linkage, Square invoice status, and user-account tie-in.</p>
+
             <div class="abc-logbook-panel">
                 <div class="abc-logbook-toolbar">
-                    <input type="text" id="abc-log-search" placeholder="Search invoice #, client, job name, keywords..." class="abc-logbook-input">
+                    <input type="text" id="abc-log-search" placeholder="Search ticket #, client, job name, quantity, or keywords..." class="abc-logbook-input">
                     <span class="spinner" id="abc-admin-spinner" style="float:none; margin:0;"></span>
                 </div>
 
                 <table class="widefat striped abc-logbook-table">
                     <thead>
                         <tr>
-                            <th style="width:160px;">Invoice #</th>
-                            <th>Job / Client</th>
+                            <th style="width:120px;">Ticket #</th>
+                            <th style="width:110px;">Date</th>
+                            <th>Customer / Job</th>
+                            <th style="width:90px;">Qty</th>
+                            <th style="width:110px;">Amount</th>
                             <th style="width:140px;">Stage</th>
-                            <th style="width:140px;">Due Date</th>
-                            <th style="width:220px;">Actions</th>
+                            <th style="width:130px;">Woo / Square</th>
+                            <th style="width:320px;">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="abc-log-results"></tbody>

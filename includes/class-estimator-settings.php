@@ -26,6 +26,14 @@ class ABC_Estimator_Settings {
             update_option('abc_contract_color_click_cost', is_numeric($_POST['abc_contract_color_click_cost'] ?? null) ? (string) (float) $_POST['abc_contract_color_click_cost'] : '0');
             update_option('abc_target_margin_pct', is_numeric($_POST['abc_target_margin_pct'] ?? null) ? (string) (float) $_POST['abc_target_margin_pct'] : '40');
 
+            if (isset($_POST['abc_role_commission_rates']) && is_array($_POST['abc_role_commission_rates'])) {
+                $rates = [];
+                foreach (wp_unslash($_POST['abc_role_commission_rates']) as $role_slug => $value) {
+                    $rates[sanitize_key((string) $role_slug)] = is_numeric($value) ? (string) (float) $value : '0';
+                }
+                update_option('abc_role_commission_rates', $rates);
+            }
+
             if (isset($_POST['abc_duplo_trim_presets'])) {
                 $raw_duplo = wp_unslash($_POST['abc_duplo_trim_presets']);
                 $decoded_duplo = json_decode((string) $raw_duplo, true);
@@ -73,6 +81,10 @@ class ABC_Estimator_Settings {
         $contract_bw = (string) get_option('abc_contract_bw_click_cost', '0');
         $contract_color = (string) get_option('abc_contract_color_click_cost', '0');
         $target_margin_pct = (string) get_option('abc_target_margin_pct', '40');
+        $role_commission_rates = get_option('abc_role_commission_rates', []);
+        if (!is_array($role_commission_rates)) {
+            $role_commission_rates = [];
+        }
         $duplo_presets = (string) get_option('abc_duplo_trim_presets', '');
         if ($duplo_presets === '') {
             $duplo_presets = wp_json_encode([
@@ -82,6 +94,14 @@ class ABC_Estimator_Settings {
                 ],
             ], JSON_PRETTY_PRINT);
         }
+
+        $commission_roles = [
+            'sales_rep' => 'Sales Rep',
+            'designer' => 'Designer',
+            'production_staff' => 'Production Staff',
+            'printer_tech' => 'Printer Tech',
+            'vendor_partner' => 'Vendor Partner',
+        ];
         ?>
         <div class="wrap">
             <h1 class="wp-heading-inline">Estimator Settings</h1>
@@ -114,7 +134,7 @@ class ABC_Estimator_Settings {
                 </table>
 
                 <h2>Profitability Model (Lease / Contract)</h2>
-                <p class="description">Enter your contract and lease costs to auto-calculate profitable click sell rates. If your click rates PDF is updated, re-enter values here and save.</p>
+                <p class="description">Enter your lease clicks, click cost, and target margin here. The estimate calculator can then use least-click cost plus hourly labor to price jobs with fewer manual steps.</p>
                 <table class="form-table">
                     <tbody>
                         <tr>
@@ -142,6 +162,25 @@ class ABC_Estimator_Settings {
                             <th scope="row">Target Margin %</th>
                             <td><input type="number" step="0.01" name="abc_target_margin_pct" value="<?php echo esc_attr($target_margin_pct); ?>" class="small-text"></td>
                         </tr>
+                    </tbody>
+                </table>
+
+                <h2>Role Commission Rates</h2>
+                <p class="description">Maintain editable default commission percentages by role. These defaults can be copied into tickets and refined per job.</p>
+                <table class="widefat striped" style="max-width: 760px;">
+                    <thead>
+                        <tr>
+                            <th>Role</th>
+                            <th style="width: 180px;">Default Commission %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($commission_roles as $role_slug => $role_label) : ?>
+                            <tr>
+                                <td><?php echo esc_html($role_label); ?></td>
+                                <td><input type="number" step="0.01" name="abc_role_commission_rates[<?php echo esc_attr($role_slug); ?>]" value="<?php echo esc_attr((string) ($role_commission_rates[$role_slug] ?? '0')); ?>" class="small-text"></td>
+                            </tr>
+                        <?php endforeach; ?>
                     </tbody>
                 </table>
 

@@ -102,6 +102,8 @@ class ABC_CPT_ABC_Estimate {
             'abc_designer',
             'abc_sales_rep',
             'abc_design_request_id',
+            'abc_wc_order_id',
+            'abc_wc_order_status',
         ];
 
         $textarea_fields = [
