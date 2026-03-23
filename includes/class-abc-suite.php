@@ -31,6 +31,7 @@ class ABC_Suite {
             'includes/class-user-roles.php',
             'includes/class-cpt-abc-suite-records.php',
             'includes/class-admin-suite-menu.php',
+            'includes/class-openclaw-bridge.php',
         ];
 
         foreach ($files as $file) {
@@ -60,6 +61,7 @@ class ABC_Suite {
             'ABC_User_Roles',
             'ABC_CPT_ABC_Suite_Records',
             'ABC_Admin_Suite_Menu',
+            'ABC_OpenClaw_Bridge',
         ];
 
         foreach ($modules as $module) {
